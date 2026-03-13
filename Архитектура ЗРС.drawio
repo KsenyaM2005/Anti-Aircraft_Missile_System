@@ -1,0 +1,1171 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 YaBrowser/26.3.0.0 Safari/537.36" version="29.6.1" pages="7">
+  <diagram name="Архитектура общая" id="7_MNsIpY3EAGzkdbaEP8">
+    <mxGraphModel dx="2605" dy="1420" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="83xkXW3HibrcY69mLBYQ-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fontSize=18;" value="ДИСПЕТЧЕР" vertex="1">
+          <mxGeometry height="1788" width="2360" x="90" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-2" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="БЛОК ВРЕМЕНИ" vertex="1">
+          <mxGeometry height="134" width="314" x="620" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-3" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="БЛОК ЛОГИРОВАНИЯ" vertex="1">
+          <mxGeometry height="89" width="215" x="627" y="1670" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-4" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="ГРАФИЧЕСКИЙ&#xa;ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="147" width="333" x="1490" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-5" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="ВОЗДУШНАЯ&#xa;СРЕДА" vertex="1">
+          <mxGeometry height="100" width="280" x="320" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-6" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="РАДИОЛОКАТОР&#xa;(РЛС)" vertex="1">
+          <mxGeometry height="78" width="181" x="644" y="1528" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-7" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="ПУНКТ БОЕВОГО&#xa;УПРАВЛЕНИЯ (ПБУ)" vertex="1">
+          <mxGeometry height="88" width="290" x="1410" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-8" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="ПУСКОВАЯ&#xa;УСТАНОВКА (ПУ)" vertex="1">
+          <mxGeometry height="96" width="313" x="1437" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-9" parent="83xkXW3HibrcY69mLBYQ-1" style="whiteSpace=wrap;strokeWidth=2;fontSize=18;" value="ЗЕНИТНАЯ&#xa;УПРАВЛЯЕМАЯ РАКЕТА (ЗУР)" vertex="1">
+          <mxGeometry height="179" width="372" x="1138" y="1021" as="geometry" />
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-10" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.62;entryX=0;entryY=0.26;rounded=0;" target="83xkXW3HibrcY69mLBYQ-3" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="79" y="149" />
+              <mxPoint x="79" y="1655" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-11" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-4" value="1. ТАКТЫ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-12" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;entryX=0.5;entryY=0;rounded=0;entryDx=0;entryDy=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-5" value="2. ТАКТЫ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="490" />
+              <mxPoint x="466" y="1010" />
+            </Array>
+            <mxPoint x="750" y="276" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-13" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0;entryY=0.21;rounded=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-6" value="3. ТАКТЫ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="370" y="380" />
+              <mxPoint x="230" y="1442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-14" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.75;exitY=1;entryX=0.2;entryY=-0.01;rounded=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-7" value="4. ТАКТЫ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="374" />
+              <mxPoint x="1260" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-15" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.25;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-8" value="5. ТАКТЫ">
+          <mxGeometry relative="1" x="-0.3568" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="980" y="480" />
+              <mxPoint x="1247" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-16" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=1;rounded=0;entryX=0.001;entryY=0.59;entryDx=0;entryDy=0;entryPerimeter=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-9" value="6. ТАКТЫ">
+          <mxGeometry relative="1" x="-0.423" y="9" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="680" y="370" />
+              <mxPoint x="861" y="938" />
+            </Array>
+            <mxPoint x="1138" y="1029" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-17" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-4" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-3" value="7. СОБЫТИЯ">
+          <mxGeometry relative="1" x="-0.3838" y="139" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="2320" y="460" />
+              <mxPoint x="2220" y="1640" />
+              <mxPoint x="1280" y="1860" />
+              <mxPoint x="780" y="1820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-18" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-5" style="curved=1;startArrow=none;endArrow=block;exitX=0.25;exitY=1;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-3" value="8. СОБЫТИЯ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="1500" />
+              <mxPoint x="480" y="1670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-19" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="83xkXW3HibrcY69mLBYQ-3" value="9. СОБЫТИЯ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-20" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.74;entryX=1;entryY=0.75;rounded=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-3" value="10. СОБЫТИЯ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2158" y="635" />
+              <mxPoint x="2158" y="1655" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-21" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-8" style="curved=1;startArrow=none;endArrow=block;exitX=0.75;exitY=1;entryX=1;entryY=0.25;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-3" value="11. СОБЫТИЯ">
+          <mxGeometry relative="1" x="-0.2354" y="-1" as="geometry">
+            <mxPoint y="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1540" y="1270" />
+              <mxPoint x="1470" y="1370" />
+              <mxPoint x="1390" y="1440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-22" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.75;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-3" value="12. СОБЫТИЯ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="1320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-23" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-5" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=0.99;entryX=0.25;entryY=0;rounded=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-6" value="13. ЗАШУМЛЕННЫЕ &#xa;КООРДИНАТЫ ЦЕЛИ&#xa;• X+σ, Y+σ, Z+σ&#xa;• ЕПР">
+          <mxGeometry relative="1" x="-0.1005" y="21" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="540" y="1440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-24" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-9" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.69;entryX=1;entryY=0.5;rounded=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-5" value="14. СИГНАЛ ПОРАЖЕНИЯ&#xa;• Цель уничтожена&#xa;• Координаты взрыва">
+          <mxGeometry relative="1" x="-0.4769" y="8" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="730" y="1240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-25" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.68;exitY=-0.01;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-7" value="15. ТРЕК ЦЕЛИ&#xa;• Координаты, скорость&#xa;• Захват/потеря&#xa;• ЕПР">
+          <mxGeometry relative="1" x="-0.678" y="11" as="geometry">
+            <mxPoint y="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="840" y="1442" />
+              <mxPoint x="910" y="820" />
+              <mxPoint x="950" y="770" />
+              <mxPoint x="1010" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-26" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-6" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.38;entryX=0.89;entryY=0.99;rounded=0;" target="83xkXW3HibrcY69mLBYQ-4" value="16. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Треки целей">
+          <mxGeometry relative="1" x="0.1562" y="118" as="geometry">
+            <mxPoint y="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1968" y="1442" />
+              <mxPoint x="1968" y="374" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-27" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.25;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="83xkXW3HibrcY69mLBYQ-6" value="17. УПРАВЛЕНИЕ РЛС&#xa;• Режим работы&#xa;• Сектор сканирования&#xa;• Цель для сопровождения">
+          <mxGeometry relative="1" x="0.1503" y="60" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="630" y="635" />
+              <mxPoint x="630" y="1442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-28" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.43;entryY=-0.01;rounded=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-8" value="18. КОМАНДА НА ПУСК&#xa;• Цель для уничтожения&#xa;• Тип ракеты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-29" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.75;entryX=0.08;entryY=0;rounded=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-9" value="19. КОМАНДЫ НАВЕДЕНИЯ&#xa;• Точка встречи&#xa;• Коррекция курса&#xa;• Режим полета">
+          <mxGeometry relative="1" x="0.177" y="11" as="geometry">
+            <mxPoint y="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1159" y="680" />
+              <mxPoint x="1090" y="780" />
+              <mxPoint x="1090" y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-30" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=block;exitX=0.81;exitY=-0.01;entryX=0.48;entryY=0.99;rounded=0;" target="83xkXW3HibrcY69mLBYQ-4" value="20. ОБСТАНОВКА И РЕШЕНИЯ&#xa;• Текущие цели&#xa;• Отданные приказы">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1728" y="374" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-31" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-8" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=1;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="83xkXW3HibrcY69mLBYQ-9" value="21. ПУСК РАКЕТЫ&#xa;• Активация&#xa;• Начальные координаты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1440" y="930" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-32" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-9" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.44;exitY=0;entryX=0.06;entryY=0.99;rounded=0;" target="83xkXW3HibrcY69mLBYQ-7" value="22. ТЕЛЕМЕТРИЯ ОТ РАКЕТЫ&#xa;• Координаты ракеты&#xa;• Скорость, высота&#xa;• Статус систем&#xa;• ПОДРЫВ / ПРОМАХ">
+          <mxGeometry relative="1" x="-0.5514" y="-3" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1227" y="938" />
+              <mxPoint x="1227" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-33" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-9" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.2;entryX=0.69;entryY=0.99;rounded=0;" target="83xkXW3HibrcY69mLBYQ-4" value="23. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Положение ракеты&#xa;• События">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1848" y="938" />
+              <mxPoint x="1848" y="374" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-34" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-4" style="curved=1;startArrow=none;endArrow=block;exitX=0.11;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="83xkXW3HibrcY69mLBYQ-7" value="24. КОМАНДЫ ОПЕРАТОРА&#xa;• Старт/Пауза/Сброс&#xa;• Добавить цель&#xa;• Выбрать сценарий&#xa;• Ручной пуск">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1511" y="374" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-35" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-4" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.61;entryX=0.75;entryY=-0.01;rounded=0;" target="83xkXW3HibrcY69mLBYQ-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="510" y="374" />
+              <mxPoint x="510" y="1205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-36" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-5" style="curved=1;startArrow=none;endArrow=none;exitX=1;exitY=0.85;entryX=0.5;entryY=-0.01;rounded=0;" target="83xkXW3HibrcY69mLBYQ-6" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="735" y="1442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-37" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-6" style="curved=1;startArrow=none;endArrow=none;exitX=1;exitY=0.39;entryX=1;entryY=0.77;rounded=0;" target="83xkXW3HibrcY69mLBYQ-7" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2088" y="1442" />
+              <mxPoint x="2088" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-38" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-7" style="curved=1;startArrow=none;endArrow=none;exitX=0.7;exitY=0.99;entryX=0.65;entryY=-0.01;rounded=0;" target="83xkXW3HibrcY69mLBYQ-8" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1638" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="83xkXW3HibrcY69mLBYQ-39" edge="1" parent="83xkXW3HibrcY69mLBYQ-1" source="83xkXW3HibrcY69mLBYQ-8" style="curved=1;startArrow=none;endArrow=none;exitX=0.03;exitY=0.99;entryX=0.41;entryY=0;rounded=0;" target="83xkXW3HibrcY69mLBYQ-9" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1207" y="938" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="OA3dM4h54uWb-vtRAHRV" name="РЛС">
+    <mxGraphModel dx="1895" dy="1033" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="BqOEB57gUFsI13ATxx95-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="1088" width="797" x="20" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПОЛУЧЕНИЯ ИЗМЕРЕНИЙ&#xa;        ──────────────────────────&#xa;        • Приём зашумленных координат от среды&#xa;        • Приём значения ЭПР цели&#xa;        • Накопление первичных данных" vertex="1">
+          <mxGeometry height="174" width="355" x="232" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ОТОЖДЕСТВЛЕНИЯ&#xa;        ──────────────────────&#xa;        • Сравнение замеров с существующими треками&#xa;        • Привязка замера к треку&#xa;        • Создание новых треков&#xa;        • Отбрасывание ложных замеров" vertex="1">
+          <mxGeometry height="198" width="309" x="390" y="486" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ФИЛЬТРАЦИИ&#xa;        ─────────────────&#xa;        • Фильтр Калмана&#xa;        • Сглаживание траекторий&#xa;        • Экстраполяция положения&#xa;        • Оценка скорости и ускорения" vertex="1">
+          <mxGeometry height="246" width="260" x="464" y="765" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ФОРМИРОВАНИЯ ТРЕКОВ&#xa;        ─────────────────────────&#xa;        • Обновление параметров треков&#xa;        • Присвоение статусов (захват/сопровождение/потеря)&#xa;        • Подготовка данных для отправки" vertex="1">
+          <mxGeometry height="174" width="343" x="357" y="1109" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ВОЗДУШНАЯ СРЕДА" vertex="1">
+          <mxGeometry height="54" width="205" x="307" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУНКТ БОЕВОГО УПРАВЛЕНИЯ" vertex="1">
+          <mxGeometry height="78" width="260" x="70" y="1350" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="574" y="1380" as="geometry" />
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-9" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.5;entryX=0.75;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="BqOEB57gUFsI13ATxx95-3" value="1. Сырые замеры">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-10" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.85;exitY=1;entryX=0.69;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-4" value="2. Привязанные замеры">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="659" y="728" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-11" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.66;exitY=1;entryX=0.73;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-5" value="3. Отфильтрованные данные">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="654" y="1060" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-12" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.16;exitY=0;entryX=0.25;entryY=1;rounded=0;entryDx=0;entryDy=0;" target="BqOEB57gUFsI13ATxx95-3" value="4. Обновлённые треки">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="345" y="1060" />
+              <mxPoint x="360" y="750" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-13" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-6" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-2" value="5. ЗАШУМЛЕННЫЕ КООРДИНАТЫ&#xa;• X+σ, Y+σ, Z+σ&#xa;• ЭПР">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-14" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=0;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="BqOEB57gUFsI13ATxx95-2" value="6. УПРАВЛЕНИЕ РЛС&#xa;• Режим работы&#xa;• Сектор сканирования&#xa;• Цель для сопровождения">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="1381" />
+              <mxPoint x="140" y="456" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-15" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0.64;entryY=0;rounded=0;exitDx=0;exitDy=0;" target="BqOEB57gUFsI13ATxx95-7" value="7. ТРЕК ЦЕЛИ&#xa;• Координаты, скорость&#xa;• Захват/потеря&#xa;• ЭПР">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="270" y="1240" />
+              <mxPoint x="230" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-16" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-5" style="curved=1;startArrow=none;endArrow=block;exitX=0.9;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-8" value="8. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Треки целей">
+          <mxGeometry relative="1" x="0.4904" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="704" y="1308" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-17" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-2" style="curved=1;startArrow=none;endArrow=none;exitX=0.35;exitY=1;entryX=0.08;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-3" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="334" y="456" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-18" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-3" style="curved=1;startArrow=none;endArrow=none;exitX=0.43;exitY=1;entryX=0.16;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-4" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="479" y="728" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BqOEB57gUFsI13ATxx95-19" edge="1" parent="1" source="BqOEB57gUFsI13ATxx95-4" style="curved=1;startArrow=none;endArrow=none;exitX=0.33;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="BqOEB57gUFsI13ATxx95-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="531" y="1060" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dXugYq8bo5UvRTRO-T5u-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="РАДИОЛОКАТОР" vertex="1">
+          <mxGeometry height="78" width="160" x="30" y="230" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="MqeqmIsD__-ML8pGXevZ" name="ПУ">
+    <mxGraphModel dx="1042" dy="568" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="1088" width="1154" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ХРАНЕНИЯ БОЕКОМПЛЕКТА&#xa;        ──────────────────────────────&#xa;        • Учёт количества ракет&#xa;        • Типы ракет на хранении&#xa;        • Состояние каждой ракеты&#xa;        • Информация о перезарядке" vertex="1">
+          <mxGeometry height="174" width="400" x="457" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПОДГОТОВКИ К ПУСКУ&#xa;        ──────────────────────────&#xa;        • Приём целеуказания от ПБУ&#xa;        • Наведение на цель&#xa;        • Предстартовая проверка&#xa;        • Выбор ракеты для пуска" vertex="1">
+          <mxGeometry height="174" width="355" x="167" y="293" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПУСКА&#xa;        ─────────────────&#xa;        • Получение команды ОГОНЬ&#xa;        • Активация ракеты&#xa;        • Запуск двигателя&#xa;        • Отправка сигнала о пуске" vertex="1">
+          <mxGeometry height="222" width="260" x="803" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ФОРМИРОВАНИЯ СТАТУСА&#xa;        ────────────────────────────&#xa;        • Текущая готовность&#xa;        • Количество оставшихся ракет&#xa;        • Угол наведения&#xa;        • Подтверждение пуска&#xa;        • Коды ошибок" vertex="1">
+          <mxGeometry height="198" width="377" x="469" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУНКТ БОЕВОГО УПРАВЛЕНИЯ" vertex="1">
+          <mxGeometry height="80" width="347" x="150" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ЗЕНИТНАЯ РАКЕТА" vertex="1">
+          <mxGeometry height="54" width="199" x="1280" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="1249.5" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-9" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.8;entryX=0.5;entryY=0;rounded=0;entryDx=0;entryDy=0;" target="wqBzw9Fl98_aoTD4lEbD-3" value="1. Данные о ракетах">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-10" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.76;entryX=0.34;entryY=0;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-4" value="2. Готова к пуску">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="879" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-11" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.69;exitY=0;entryX=1;entryY=0.92;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-2" value="3. Израсходована ракета">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="504" />
+              <mxPoint x="1000" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-12" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.71;exitY=1;entryX=0.25;entryY=0;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-5" value="4. Текущее состояние">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="502" y="504" />
+              <mxPoint x="502" y="824" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-13" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.8;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;" target="wqBzw9Fl98_aoTD4lEbD-5" value="5. Результат пуска">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-14" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="wqBzw9Fl98_aoTD4lEbD-5" value="6. Остаток боекомплекта">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-15" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=0;entryX=0.25;entryY=1;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="wqBzw9Fl98_aoTD4lEbD-3" value="7. КОМАНДА НА ПУСК&#xa;• Цель для уничтожения&#xa;• Тип ракеты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-16" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=0;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="wqBzw9Fl98_aoTD4lEbD-3" value="8. ЦЕЛЕУКАЗАНИЕ&#xa;• Координаты цели&#xa;• Углы наведения">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="339" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-17" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-6" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="wqBzw9Fl98_aoTD4lEbD-5" value="9. ЗАПРОС СТАТУСА">
+          <mxGeometry relative="1" x="0.0636" y="23" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="560" y="1210" />
+              <mxPoint x="640" y="1140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-18" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="wqBzw9Fl98_aoTD4lEbD-7" value="10. ПУСК РАКЕТЫ&#xa;• Активация&#xa;• Начальные координаты">
+          <mxGeometry relative="1" x="0.0553" y="-25" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1140" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-19" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-5" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="wqBzw9Fl98_aoTD4lEbD-6" value="11. СТАТУС ПУ&#xa;• Готовность&#xa;• Количество ракет&#xa;• Типы ракет&#xa;• Пуск подтвержден&#xa;• Ошибки">
+          <mxGeometry relative="1" x="-0.2062" y="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="360" y="1090" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-20" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-5" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="wqBzw9Fl98_aoTD4lEbD-8" value="12. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Состояние ПУ&#xa;• События пуска">
+          <mxGeometry relative="1" x="0.0165" y="-25" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1150" y="1000" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-21" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-2" style="curved=1;startArrow=none;endArrow=none;exitX=0.38;exitY=1;entryX=0.88;entryY=0;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-3" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="586" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-22" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-3" style="curved=1;startArrow=none;endArrow=none;exitX=1;exitY=0.72;entryX=0.59;entryY=0;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-4" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wqBzw9Fl98_aoTD4lEbD-23" edge="1" parent="1" source="wqBzw9Fl98_aoTD4lEbD-4" style="curved=1;startArrow=none;endArrow=none;exitX=0.41;exitY=1;entryX=0.89;entryY=0;rounded=0;" target="wqBzw9Fl98_aoTD4lEbD-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="895" y="824" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39HJj0sN2kwSFaUz0kZo-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУСКОВАЯ УСТАНОВКА" vertex="1">
+          <mxGeometry height="78" width="260" x="30" y="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="YQypJHEvPwCbLbV4KBT1" name="ПБУ">
+    <mxGraphModel dx="1895" dy="2202" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2pCClSu1n73i43P0UKRJ-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="1010" width="1606" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПРИЁМА ДАННЫХ&#xa;        ───────────────────────&#xa;        • Получение треков от РЛС&#xa;        • Получение телеметрии от ЗУР&#xa;        • Получение статусов от ПУ&#xa;        • Получение команд от оператора" vertex="1">
+          <mxGeometry height="174" width="321" x="1080" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК АНАЛИЗА ОБСТАНОВКИ&#xa;        ───────────────────────────&#xa;        • Оценка угрозы по каждой цели&#xa;        • Определение приоритетов&#xa;        • Расчёт возможности перехвата&#xa;        • Выявление наиболее опасных целей" vertex="1">
+          <mxGeometry height="174" width="366" x="660" y="293" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПРИНЯТИЯ РЕШЕНИЙ&#xa;        ─────────────────────────&#xa;        • Выбор цели для уничтожения&#xa;        • Назначение РЛС для сопровождения&#xa;        • Назначение ПУ для пуска&#xa;        • Выбор типа ракеты" vertex="1">
+          <mxGeometry height="198" width="343" x="640" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ФОРМИРОВАНИЯ ПРИКАЗОВ&#xa;        ─────────────────────────────&#xa;        • Создание команд на пуск&#xa;        • Формирование команд наведения&#xa;        • Управление режимами РЛС&#xa;        • Контроль исполнения приказов" vertex="1">
+          <mxGeometry height="174" width="389" x="1040" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ФОРМИРОВАНИЯ ОБСТАНОВКИ&#xa;        ────────────────────────────────&#xa;        • Подготовка данных для отображения&#xa;        • Текущие цели с приоритетами&#xa;        • Отданные приказы и их статус" vertex="1">
+          <mxGeometry height="150" width="423" x="80" y="143" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="РАДИОЛОКАТОР" vertex="1">
+          <mxGeometry height="54" width="181" x="1780" y="697" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ЗЕНИТНАЯ РАКЕТА" vertex="1">
+          <mxGeometry height="54" width="199" x="1741" y="353" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУСКОВАЯ УСТАНОВКА" vertex="1">
+          <mxGeometry height="54" width="230" x="1710" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="161.5" y="-100" as="geometry" />
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-11" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-2" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.79;entryX=0.5;entryY=0;rounded=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-3" value="1. Входные данные">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-12" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-4" value="2. Оценка обстановки">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="810" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-13" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="2pCClSu1n73i43P0UKRJ-5" value="3. Принятые решения">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="810" y="840" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-14" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.84;entryX=0.5;entryY=1;rounded=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-6" value="4. Информация о приказах">
+          <mxGeometry relative="1" x="0.5092" y="-102" as="geometry">
+            <mxPoint y="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="250" y="890" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-15" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.11;entryX=0.52;entryY=1;rounded=0;" target="2pCClSu1n73i43P0UKRJ-2" value="6. ТРЕК ЦЕЛИ&#xa;• Координаты, скорость&#xa;• Захват/потеря&#xa;• ЭПР">
+          <mxGeometry relative="1" x="0.4611" y="-7" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1290" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-16" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-8" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=0;entryX=1;entryY=0.25;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="2pCClSu1n73i43P0UKRJ-2" value="7. ТЕЛЕМЕТРИЯ ОТ РАКЕТЫ&#xa;• Координаты ракеты&#xa;• Скорость, высота&#xa;• Статус систем&#xa;• ПОДРЫВ / ПРОМАХ">
+          <mxGeometry relative="1" x="0.2193" y="-8" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1650" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-17" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-2" value="8. СТАТУС ПУ&#xa;• Готовность&#xa;• Количество ракет&#xa;• Типы ракет&#xa;• Пуск подтвержден">
+          <mxGeometry relative="1" x="-0.2564" y="81" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1540" y="-160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-18" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-10" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0.25;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-2" value="9. КОМАНДЫ ОПЕРАТОРА&#xa;• Старт/Пауза/Сброс&#xa;• Добавить цель&#xa;• Выбрать сценарий&#xa;• Ручной пуск">
+          <mxGeometry relative="1" x="0.0363" y="-41" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="810" y="-110" />
+              <mxPoint x="1070" y="-30" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-19" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.75;exitY=1;entryX=0.5;entryY=1;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="2pCClSu1n73i43P0UKRJ-7" value="10. УПРАВЛЕНИЕ РЛС&#xa;• Режим работы&#xa;• Сектор сканирования&#xa;• Цель для сопровождения">
+          <mxGeometry relative="1" x="0.0687" y="46" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1450" y="1010" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-20" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;entryX=0.5;entryY=1;rounded=0;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-9" value="11. КОМАНДА НА ПУСК&#xa;• Цель для уничтожения&#xa;• Тип ракеты">
+          <mxGeometry relative="1" x="-0.5834" y="-45" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1290" y="620" />
+            </Array>
+            <mxPoint x="1269.0000000000005" y="623.3843729903539" as="sourcePoint" />
+            <mxPoint x="1550" y="1.2789769243681803e-13" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-21" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.5;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-8" value="12. КОМАНДЫ НАВЕДЕНИЯ&#xa;• Точка встречи&#xa;• Коррекция курса&#xa;• Режим полета">
+          <mxGeometry relative="1" x="0.5265" y="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1540" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-22" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="2pCClSu1n73i43P0UKRJ-10" value="13. ОБСТАНОВКА И РЕШЕНИЯ&#xa;• Текущие цели&#xa;• Отданные приказы">
+          <mxGeometry relative="1" x="-0.4788" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-23" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-2" style="curved=1;startArrow=none;endArrow=none;exitX=0.18;exitY=1;entryX=0.76;entryY=0;rounded=0;" target="2pCClSu1n73i43P0UKRJ-3" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="913" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-24" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-3" style="curved=1;startArrow=none;endArrow=none;exitX=0.76;exitY=1;entryX=0.79;entryY=0;rounded=0;" target="2pCClSu1n73i43P0UKRJ-4" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="913" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-25" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-4" style="curved=1;startArrow=none;endArrow=none;exitX=0.72;exitY=1;entryX=0.68;entryY=0;rounded=0;" target="2pCClSu1n73i43P0UKRJ-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="913" y="824" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2pCClSu1n73i43P0UKRJ-26" edge="1" parent="1" source="2pCClSu1n73i43P0UKRJ-5" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.99;entryX=0.63;entryY=0;rounded=0;" target="2pCClSu1n73i43P0UKRJ-6" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="1168" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KRVCDIbsq0k2yebP94WX-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУНКТ БОЕВОГО УПРАВЛЕНИЯ" vertex="1">
+          <mxGeometry height="78" width="260" x="30" y="940" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="7Hz-JUWZZJzwGB52FVdB" name="ЗУР">
+    <mxGraphModel dx="1489" dy="811" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="1600" width="1110" x="20" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ЗЕНИТНАЯ УПРАВЛЯЕМАЯ РАКЕТА" vertex="1">
+          <mxGeometry height="78" width="260" x="55" y="1621" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК АКТИВАЦИИ&#xa;        ─────────────────&#xa;        • Получение команды на пуск от ПУ&#xa;        • Получение начальных координат&#xa;        • Получение целеуказания от ПБУ&#xa;        • Запуск бортовых систем" vertex="1">
+          <mxGeometry height="246" width="260" x="490" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПОЛЁТА&#xa;        ─────────────────&#xa;        • Расчёт текущей траектории&#xa;        • Обновление координат&#xa;        • Расчёт скорости и высоты&#xa;        • Учёт аэродинамики" vertex="1">
+          <mxGeometry height="222" width="260" x="740" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК НАВЕДЕНИЯ&#xa;        ─────────────────&#xa;        • Приём команд наведения от ПБУ&#xa;        • Расчёт упреждения&#xa;        • Формирование команд на рули&#xa;        • Коррекция курса" vertex="1">
+          <mxGeometry height="222" width="260" x="740" y="837" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПОДРЫВА&#xa;        ─────────────────&#xa;        • Проверка дальности до цели&#xa;        • Расчёт момента подрыва&#xa;        • Активация боевой части&#xa;        • Оценка результата (попадание/промах)" vertex="1">
+          <mxGeometry height="222" width="260" x="740" y="1181" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ТЕЛЕМЕТРИИ&#xa;        ─────────────────&#xa;        • Сбор данных о полёте&#xa;        • Формирование отчётов&#xa;        • Отправка состояния в ПБУ&#xa;        • Отправка данных для отображения" vertex="1">
+          <mxGeometry height="222" width="260" x="420" y="1510" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУСКОВАЯ УСТАНОВКА" vertex="1">
+          <mxGeometry height="54" width="230" x="520" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУНКТ БОЕВОГО УПРАВЛЕНИЯ" vertex="1">
+          <mxGeometry height="78" width="260" x="290" y="1910" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ВОЗДУШНАЯ СРЕДА" vertex="1">
+          <mxGeometry height="54" width="205" x="1260" y="1320" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="850" y="1840" as="geometry" />
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-13" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=1;exitY=0.5;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-5" value="1. Активация">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-14" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=1;rounded=0;exitDx=0;exitDy=0;" value="2. Текущие координаты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="805" y="837" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-15" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.75;exitY=0;entryX=0.75;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-5" value="3. Команды на рули">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-16" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.75;entryX=0;entryY=0.05;rounded=0;exitDx=0;exitDy=0;" target="VO--pzXQ6XW_qbe5t_rK-7" value="4. Положение для подрыва">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="631" y="800" />
+              <mxPoint x="631" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-17" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-7" value="5. Информация о захвате">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-18" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0.25;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="VO--pzXQ6XW_qbe5t_rK-8" value="6. Данные полёта">
+          <mxGeometry relative="1" x="0.1056" y="44" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="440" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-19" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-8" value="7. Данные наведения">
+          <mxGeometry relative="1" x="0.0456" y="30" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="550" y="1060" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-20" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="VO--pzXQ6XW_qbe5t_rK-8" value="8. Результат подрыва">
+          <mxGeometry relative="1" x="-0.0781" y="12" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="630" y="1380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-21" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-9" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="VO--pzXQ6XW_qbe5t_rK-4" value="9. ПУСК РАКЕТЫ&#xa;• Активация&#xa;• Начальные координаты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-22" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-10" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=0;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-4" value="10. ЦЕЛЕУКАЗАНИЕ&#xa;• Координаты цели&#xa;• Тип цели">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-23" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-10" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;entryX=1;entryY=0.5;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-6" value="11. КОМАНДЫ НАВЕДЕНИЯ&#xa;• Точка встречи&#xa;• Коррекция курса&#xa;• Режим полета">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="970" y="1720" />
+              <mxPoint x="1080" y="1500" />
+              <mxPoint x="1067" y="1120" />
+            </Array>
+            <mxPoint x="560" y="1989" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-24" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-8" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.25;exitY=1;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="VO--pzXQ6XW_qbe5t_rK-10" value="12. ТЕЛЕМЕТРИЯ&#xa;• Координаты ракеты&#xa;• Скорость, высота&#xa;• Статус систем&#xa;• ПОДРЫВ / ПРОМАХ">
+          <mxGeometry relative="1" x="0.3243" y="5" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-25" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-8" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;" target="VO--pzXQ6XW_qbe5t_rK-12" value="13. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Положение ракеты&#xa;• События">
+          <mxGeometry relative="1" x="0.6235" y="-8" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="970" y="1780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-26" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-7" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.76;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;" target="VO--pzXQ6XW_qbe5t_rK-11" value="14. СИГНАЛ ПОРАЖЕНИЯ&#xa;• Цель уничтожена&#xa;• Координаты взрыва">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120" y="1350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-27" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-4" style="curved=1;startArrow=none;endArrow=none;exitX=1;exitY=0.66;entryX=1;entryY=0.28;rounded=0;" target="VO--pzXQ6XW_qbe5t_rK-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1266" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-28" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-5" style="curved=1;startArrow=none;endArrow=none;exitX=0.74;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="VO--pzXQ6XW_qbe5t_rK-6" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="958" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-29" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-6" style="curved=1;startArrow=none;endArrow=none;exitX=0.68;exitY=1;entryX=0.94;entryY=0;rounded=0;" target="VO--pzXQ6XW_qbe5t_rK-7" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1032" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VO--pzXQ6XW_qbe5t_rK-30" edge="1" parent="1" source="VO--pzXQ6XW_qbe5t_rK-7" style="curved=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.95;entryY=0;rounded=0;" target="VO--pzXQ6XW_qbe5t_rK-8" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="856" y="1476" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="STs86SeFMfRNdmY8qDk4" name="Воздушная среда">
+    <mxGraphModel dx="1895" dy="1033" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="830" width="1186" x="252" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ВОЗДУШНАЯ СРЕДА" vertex="1">
+          <mxGeometry height="54" width="205" x="270" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ГЕНЕРАЦИИ ТРАЕКТОРИЙ&#xa;        ─────────────────────────────&#xa;        • Создание целей по сценарию&#xa;        • Расчёт траекторий движения&#xa;        • Обновление позиций целей&#xa;        • Учёт маневров и ускорений" vertex="1">
+          <mxGeometry height="174" width="389" x="990" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ЗАШУМЛЕНИЯ ИЗМЕРЕНИЙ&#xa;        ────────────────────────────&#xa;        • Добавление шума к координатам&#xa;        • Флуктуации ЭПР&#xa;        • Формирование зашумлённых замеров&#xa;        • Подготовка данных для РЛС" vertex="1">
+          <mxGeometry height="174" width="377" x="990" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК УДАЛЕНИЯ ЦЕЛЕЙ&#xa;        ──────────────────────&#xa;        • Проверка сигналов поражения&#xa;        • Проверка выхода за границы&#xa;        • Удаление уничтоженных целей&#xa;        • Очистка неактивных объектов" vertex="1">
+          <mxGeometry height="174" width="309" x="537" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК СОСТОЯНИЯ СРЕДЫ&#xa;        ────────────────────────&#xa;        • Хранение истинных координат&#xa;        • Список активных целей&#xa;        • Параметры каждой цели&#xa;        • История траекторий" vertex="1">
+          <mxGeometry height="174" width="332" x="537" y="870" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="РАДИОЛОКАТОР" vertex="1">
+          <mxGeometry height="54" width="181" x="1530" y="975" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ЗЕНИТНАЯ РАКЕТА" vertex="1">
+          <mxGeometry height="54" width="199" x="10" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="586" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-10" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-4" value="1. Истинные координаты">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-11" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=0;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-5" value="2. Текущие позиции">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1080" y="300" />
+              <mxPoint x="870" y="280" />
+              <mxPoint x="710" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-12" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.74;entryX=0.5;entryY=0;rounded=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-6" value="3. Данные о целях">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="570" />
+              <mxPoint x="840" y="600" />
+              <mxPoint x="790" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-13" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.75;exitY=1;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-7" value="4. Зашумлённые замеры">
+          <mxGeometry relative="1" x="-0.202" y="59" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1470" y="1210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-14" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.82;exitY=0;entryX=0.28;entryY=1;rounded=0;" target="I7-8ZtKRzX9ZwqCwAeCI-3" value="5. Информация о целях">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="920" y="840" />
+              <mxPoint x="1050" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-15" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.25;exitY=0;entryX=0.25;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-5" value="6. Данные для удаления">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="630" y="770" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-16" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-4" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.75;exitY=0;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-7" value="7. ЗАШУМЛЕННЫЕ КООРДИНАТЫ&#xa;• X+σ, Y+σ, Z+σ&#xa;• ЭПР">
+          <mxGeometry relative="1" x="-0.1897" y="-61" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1570" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-17" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-8" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;entryX=0;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="I7-8ZtKRzX9ZwqCwAeCI-5" value="8. СИГНАЛ ПОРАЖЕНИЯ&#xa;• Цель уничтожена&#xa;• Координаты взрыва">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="210" y="612" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-18" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="I7-8ZtKRzX9ZwqCwAeCI-9" value="9. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ&#xa;• Истинные координаты целей&#xa;• Траектории&#xa;• Типы целей">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-19" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-3" style="curved=1;startArrow=none;endArrow=none;exitX=1;exitY=0.95;entryX=0.79;entryY=0;rounded=0;" target="I7-8ZtKRzX9ZwqCwAeCI-4" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1313" y="256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-20" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-4" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.91;entryX=0.6;entryY=0;rounded=0;" target="I7-8ZtKRzX9ZwqCwAeCI-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="734" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I7-8ZtKRzX9ZwqCwAeCI-21" edge="1" parent="1" source="I7-8ZtKRzX9ZwqCwAeCI-5" style="curved=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.39;entryY=0;rounded=0;" target="I7-8ZtKRzX9ZwqCwAeCI-6" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="824" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Hib9s6_QVGz2_t9xhuH7" name="GUI">
+    <mxGraphModel dx="2084" dy="2305" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="1630" width="1316" x="260" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ГРАФИЧЕСКИЙ ИНТЕРФЕЙС" vertex="1">
+          <mxGeometry height="78" width="260" x="1290" y="1610" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ОБРАБОТКИ КОМАНД&#xa;        ─────────────────────────&#xa;        • Приём действий оператора&#xa;        • Клики мыши, нажатия клавиш&#xa;        • Формирование команд&#xa;        • Отправка команд в ПБУ" vertex="1">
+          <mxGeometry height="174" width="343" x="320" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ПРИЁМА ДАННЫХ&#xa;        ─────────────────────&#xa;        • Получение треков от РЛС&#xa;        • Получение телеметрии от ЗУР&#xa;        • Получение статусов от ПУ&#xa;        • Получение обстановки от ПБУ&#xa;        • Получение координат от среды" vertex="1">
+          <mxGeometry height="222" width="298" x="760" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК КЕШИРОВАНИЯ&#xa;        ───────────────────&#xa;        • Хранение текущих координат&#xa;        • Сохранение истории траекторий&#xa;        • Актуальные статусы объектов&#xa;        • Буфер для отрисовки" vertex="1">
+          <mxGeometry height="246" width="275" x="771.5" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК УПРАВЛЕНИЯ СЦЕНОЙ&#xa;        ─────────────────────────&#xa;        • Масштабирование&#xa;        • Панорамирование&#xa;        • Переключение режимов отображения&#xa;        • Фильтрация объектов" vertex="1">
+          <mxGeometry height="198" width="343" x="730" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ОТРИСОВКИ&#xa;        ─────────────────&#xa;        • Отрисовка карты и сетки&#xa;        • Отрисовка целей&#xa;        • Отрисовка ракет&#xa;        • Отрисовка РЛС и ПУ&#xa;        • Отрисовка интерфейса" vertex="1">
+          <mxGeometry height="198" width="259" x="771.5" y="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="БЛОК ОТОБРАЖЕНИЯ&#xa;        ───────────────────&#xa;        • Вывод на экран&#xa;        • Обновление кадров&#xa;        • Отображение HUD&#xa;        • Вывод сообщений" vertex="1">
+          <mxGeometry height="174" width="275" x="354" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУНКТ БОЕВОГО УПРАВЛЕНИЯ" vertex="1">
+          <mxGeometry height="78" width="260" x="690" y="-50" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="РАДИОЛОКАТОР" vertex="1">
+          <mxGeometry height="54" width="181" x="1610" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ЗЕНИТНАЯ РАКЕТА" vertex="1">
+          <mxGeometry height="54" width="199" x="1601" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ПУСКОВАЯ УСТАНОВКА" vertex="1">
+          <mxGeometry height="54" width="230" x="1590" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-13" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ВОЗДУШНАЯ СРЕДА" vertex="1">
+          <mxGeometry height="54" width="205" x="1640" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-14" parent="1" style="rounded=1;whiteSpace=wrap;arcSize=50;strokeWidth=2;" value="ОПЕРАТОР" vertex="1">
+          <mxGeometry height="56" width="186" x="70" y="668" as="geometry" />
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-15" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-3" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="1. Обработанные команды">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="490" />
+              <mxPoint x="540" y="550" />
+              <mxPoint x="660" y="560" />
+            </Array>
+            <mxPoint x="480.00000000000045" y="354" as="sourcePoint" />
+            <mxPoint x="748.5" y="557" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-16" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-4" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-5" value="2. Полученные данные">
+          <mxGeometry relative="1" x="-0.0667" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-17" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-5" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-6" value="3. Актуальный кеш">
+          <mxGeometry relative="1" x="0.0579" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-18" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-6" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-7" value="4. Подготовленная сцена">
+          <mxGeometry relative="1" x="-0.0541" y="-3" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-19" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-7" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0;exitY=0.5;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-8" value="5. Готовое изображение">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="1599" />
+              <mxPoint x="540" y="1570" />
+              <mxPoint x="500" y="1480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-20" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-14" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-3" value="6. ДЕЙСТВИЯ&#xa;• Клики мыши&#xa;• Нажатия клавиш">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="380" />
+              <mxPoint x="300" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-21" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.25;entryY=0;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="7. ОБСТАНОВКА И РЕШЕНИЯ&#xa;• Текущие цели&#xa;• Отданные приказы">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-22" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-10" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=0.75;entryY=0;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="8. ТРЕКИ ЦЕЛЕЙ&#xa;• Координаты&#xa;• Скорость&#xa;• Захват/потеря">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-23" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-11" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.69;entryX=1;entryY=0.25;rounded=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="9. ТЕЛЕМЕТРИЯ&#xa;• Положение ракеты&#xa;• Скорость, высота&#xa;• ПОДРЫВ / ПРОМАХ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-24" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-12" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=1;entryY=0.5;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="10. СТАТУС ПУ&#xa;• Готовность&#xa;• Количество ракет&#xa;• События пуска">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1280" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-25" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-13" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=1;entryY=0.75;rounded=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="11. ИСТИННЫЕ КООРДИНАТЫ&#xa;• Положение целей&#xa;• Траектории">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1340" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-26" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-3" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0;entryX=0;entryY=0.5;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-9" value="12. КОМАНДЫ ОПЕРАТОРА&#xa;• Старт/Пауза/Сброс&#xa;• Добавить цель&#xa;• Выбрать сценарий&#xa;• Ручной пуск">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="50" />
+              <mxPoint x="690" y="-10" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-27" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-8" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=0.5;entryY=1;rounded=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="SJR3F6Vc-Ub121YG5Ze9-14" value="13. ИЗОБРАЖЕНИЕ">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="960" />
+              <mxPoint x="150" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-28" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-3" style="curved=1;startArrow=none;endArrow=none;exitX=0.34;exitY=1;entryX=0;entryY=0.24;rounded=0;" target="SJR3F6Vc-Ub121YG5Ze9-4" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="384" />
+              <mxPoint x="400" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-29" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-4" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.76;entryX=0;entryY=0.26;rounded=0;" target="SJR3F6Vc-Ub121YG5Ze9-5" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="493" y="952" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-30" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-5" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.8;entryX=0;entryY=0.1;rounded=0;" target="SJR3F6Vc-Ub121YG5Ze9-6" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="527" y="1296" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-31" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-6" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.81;entryX=0;entryY=0.27;rounded=0;" target="SJR3F6Vc-Ub121YG5Ze9-7" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="493" y="1592" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SJR3F6Vc-Ub121YG5Ze9-32" edge="1" parent="1" source="SJR3F6Vc-Ub121YG5Ze9-7" style="curved=1;startArrow=none;endArrow=none;exitX=0;exitY=0.73;entryX=0;entryY=0.24;rounded=0;" target="SJR3F6Vc-Ub121YG5Ze9-8" value="" visible="0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="493" y="1864" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
