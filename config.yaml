@@ -1,0 +1,185 @@
+# Air Defense System Simulator Configuration
+# Based on the architecture diagrams
+
+Simulation:
+  name: "ADS Simulation"
+  random_seed: 42
+  max_duration: 120.0  # seconds
+
+Environment:
+  time_step: 0.005
+  
+  # Atmospheric conditions
+  atmosphere:
+    temperature: 15.0
+    pressure: 1013.25
+    humidity: 50.0
+    wind_speed: 5.0
+    wind_direction: 45.0
+    weather: "CLEAR"  # CLEAR, LIGHT_RAIN, HEAVY_RAIN, FOG, STORM
+  
+  # Radar noise model
+  radar_noise:
+    range_noise: 10.0
+    angle_noise: 0.5
+    doppler_noise: 1.0
+    detection_probability: 0.95
+  
+  # Simulation boundaries
+  boundaries:
+    x: [0, 10000]
+    y: [0, 10000]
+    z: [0, 5000]
+  
+  # Target definitions
+  targets:
+    0:
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [2000, 4500, 500]
+        velocity: [400, 0, 0]
+      type: "FIGHTER"
+      rcs: 2.0
+      rcs_fluctuation: 0.1
+    
+    1:
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [2000, 4700, 500]
+        velocity: [400, 0, 0]
+      type: "FIGHTER"
+      rcs: 2.0
+    
+    2:
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [4500, 4000, 800]
+        velocity: [0, 300, 0]
+      type: "BOMBER"
+      rcs: 5.0
+    
+    3:
+      trajectory_type: "circled"
+      trajectory_arguments:
+        position: [2000, 5000, 1000]
+        velocity: [0, 800, 0]
+        center: [3000, 5000, 0]
+      type: "CRUISE_MISSILE"
+      rcs: 0.1
+
+Pbu:
+  time_step: 0.005
+  add_distance: 300.0
+  min_engagement_interval: 2.0
+  
+  # Defended assets (positions to protect)
+  defended_assets:
+    - [5000, 5000, 0]
+  
+  # Threat assessment parameters
+  threat_assessment:
+    speed_threshold_high: 300.0
+    speed_threshold_critical: 500.0
+    range_threshold_low: 5000.0
+    range_threshold_high: 2000.0
+  
+  # Launcher definitions
+  launchers:
+    1:
+      launcher_pos: [3000, 3000, 0]
+      missile_amount: 8
+      speed: 1000
+      missile_type: "guided missile"
+      trigger_distance: 10.0
+      explosion_range: 100.0
+      traverse_speed: 30.0
+      elevation_speed: 20.0
+      reload_time: 10.0
+    
+    2:
+      launcher_pos: [8000, 7000, 0]
+      missile_amount: 8
+      speed: 1200
+      missile_type: "guided missile"
+      trigger_distance: 15.0
+      explosion_range: 150.0
+    
+    3:
+      launcher_pos: [5000, 5000, 0]
+      missile_amount: 12
+      speed: 1000
+      missile_type: "preemptive missile"
+      trigger_distance: 10.0
+      explosion_range: 100.0
+
+Locator:
+  1:
+    time_step: 0.005
+    position:
+      x: 4000
+      y: 5000
+      z: 0
+    omega_az: 15
+    omega_el: 8
+    r_max: 3000
+    dr: 10
+    beam_width_az: 2.0
+    beam_width_el: 2.0
+    scan_sector_az: [0, 360]
+    scan_sector_el: [0, 90]
+  
+  2:
+    time_step: 0.005
+    position:
+      x: 6000
+      y: 5000
+      z: 0
+    omega_az: 15
+    omega_el: 8
+    r_max: 3000
+    dr: 10
+    beam_width_az: 2.0
+    beam_width_el: 2.0
+    scan_sector_az: [0, 360]
+    scan_sector_el: [0, 90]
+
+# Scenario configuration (timed spawns)
+Scenario:
+  enabled: false
+  spawns:
+    - time: 5.0
+      target:
+        trajectory_type: "uniform"
+        trajectory_arguments:
+          position: [1000, 8000, 2000]
+          velocity: [300, -200, -50]
+        type: "CRUISE_MISSILE"
+        rcs: 0.1
+    
+    - time: 15.0
+      target:
+        trajectory_type: "sinusoidal"
+        trajectory_arguments:
+          position: [0, 5000, 1000]
+          velocity: [250, 0, 0]
+          amplitude: 200.0
+          frequency: 0.05
+        type: "FIGHTER"
+        rcs: 2.0
+
+# Visualization settings
+Visualization:
+  window_size: [14, 10]
+  fps: 30
+  skip_frames: 5
+  show_trails: true
+  trail_length: 20
+  colors:
+    radar: "blue"
+    launcher: "orange"
+    target_low: "yellow"
+    target_medium: "orange"
+    target_high: "red"
+    target_critical: "darkred"
+    missile: "cyan"
+    defended_asset: "gold"

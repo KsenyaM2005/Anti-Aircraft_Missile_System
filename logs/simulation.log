@@ -1,0 +1,30 @@
+2026-04-15 21:56:50,519 INFO [Environment]: Environment: target 0 successfully set
+2026-04-15 21:56:50,519 INFO [Environment]: Environment: target 1 successfully set
+2026-04-15 21:56:50,519 INFO [Environment]: Environment: target 2 successfully set
+2026-04-15 21:56:50,519 INFO [Environment]: Environment: target 3 successfully set
+2026-04-15 21:56:50,519 INFO [Environment]: Environment: initialization performed using config file
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 1 initialized at [3000. 3000.    0.]
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 1: Magazine initialized with 8 missiles
+2026-04-15 21:56:50,520 INFO [PBU]: PBU: Launcher 1 successfully added
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 2 initialized at [8000. 7000.    0.]
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 2: Magazine initialized with 8 missiles
+2026-04-15 21:56:50,520 INFO [PBU]: PBU: Launcher 2 successfully added
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 3 initialized at [5000. 5000.    0.]
+2026-04-15 21:56:50,520 INFO [Launcher]: Launcher 3: Magazine initialized with 12 missiles
+2026-04-15 21:56:50,520 INFO [PBU]: PBU: Launcher 3 successfully added
+2026-04-15 21:56:50,520 INFO [PBU]: PBU: initialization performed using config file
+2026-04-15 21:56:50,520 INFO [Dispatcher]: SimulationClock initialized with time_step=0.005
+2026-04-15 21:56:50,520 INFO [GUI]: GUI initialized
+2026-04-15 21:56:50,677 INFO [Launcher]: Launcher 1: environment binding updated
+2026-04-15 21:56:50,677 INFO [Launcher]: Launcher 2: environment binding updated
+2026-04-15 21:56:50,677 INFO [Launcher]: Launcher 3: environment binding updated
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Environment (priority=10)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Radar_1 (priority=20)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Radar_2 (priority=21)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: PBU (priority=30)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Launcher_1 (priority=40)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Launcher_2 (priority=40)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Registered component: Launcher_3 (priority=40)
+2026-04-15 21:56:50,677 INFO [Dispatcher]: Dispatcher: default architecture components registered
+2026-04-15 21:56:57,879 INFO [Dispatcher]: Simulation started
+2026-04-15 21:59:41,906 INFO [Dispatcher]: Simulation stopped
