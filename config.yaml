@@ -71,7 +71,7 @@ Pbu:
       missile_amount: 8
       speed: 950
       missile_type: "guided missile"
-      trigger_distance: 18.0
+      trigger_distance: 100 #18.0
       explosion_range: 120.0
       traverse_speed: 150.0
       elevation_speed: 70.0
@@ -82,7 +82,7 @@ Pbu:
       missile_amount: 8
       speed: 1100
       missile_type: "guided missile"
-      trigger_distance: 18.0
+      trigger_distance: 100 #18.0
       explosion_range: 150.0
       traverse_speed: 150.0
       elevation_speed: 70.0
@@ -92,7 +92,7 @@ Pbu:
       missile_amount: 12
       speed: 1250
       missile_type: "preemptive missile"
-      trigger_distance: 16.0
+      trigger_distance: 100 #18.0
       explosion_range: 150.0
       traverse_speed: 180.0
       elevation_speed: 80.0
