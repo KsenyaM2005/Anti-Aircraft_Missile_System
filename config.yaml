@@ -4,10 +4,10 @@
 Simulation:
   name: "ADS Simulation"
   random_seed: 42
-  max_duration: 120.0  # seconds
+  max_duration: 90.0  # seconds
 
 Environment:
-  time_step: 0.005
+  time_step: 0.02 # 0.005
   
   # Atmospheric conditions
   atmosphere:
@@ -20,57 +20,38 @@ Environment:
   
   # Radar noise model
   radar_noise:
-    range_noise: 10.0
-    angle_noise: 0.5
+    range_noise: 8.0
+    angle_noise: 0.35
     doppler_noise: 1.0
-    detection_probability: 0.95
+    detection_probability: 0.98
   
   # Simulation boundaries
   boundaries:
-    x: [0, 10000]
+    x: [0, 12000]
     y: [0, 10000]
-    z: [0, 5000]
+    z: [0, 6000]
   
   # Target definitions
   targets:
-    0:
+    0: # Цель 1
       trajectory_type: "uniform"
       trajectory_arguments:
-        position: [2000, 4500, 500]
-        velocity: [400, 0, 0]
-      type: "FIGHTER"
-      rcs: 2.0
-      rcs_fluctuation: 0.1
-    
-    1:
-      trajectory_type: "uniform"
-      trajectory_arguments:
-        position: [2000, 4700, 500]
-        velocity: [400, 0, 0]
-      type: "FIGHTER"
-      rcs: 2.0
-    
-    2:
-      trajectory_type: "uniform"
-      trajectory_arguments:
-        position: [4500, 4000, 800]
-        velocity: [0, 300, 0]
-      type: "BOMBER"
-      rcs: 5.0
-    
-    3:
-      trajectory_type: "circled"
-      trajectory_arguments:
-        position: [2000, 5000, 1000]
-        velocity: [0, 800, 0]
-        center: [3000, 5000, 0]
+        position: [ 2000, 4000, 1000 ]
+        velocity: [ 50, 0, 0 ]
       type: "CRUISE_MISSILE"
-      rcs: 0.1
+      rcs: 0.8
+    1: # Цель 2
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [ 8000, 6000, 800 ]
+        velocity: [ -60, 0, 0 ]
+      type: "FIGHTER"
+      rcs: 1.5
 
 Pbu:
-  time_step: 0.005
+  time_step: 0.02
   add_distance: 300.0
-  min_engagement_interval: 2.0
+  min_engagement_interval: 0.6
   
   # Defended assets (positions to protect)
   defended_assets:
@@ -78,70 +59,85 @@ Pbu:
   
   # Threat assessment parameters
   threat_assessment:
-    speed_threshold_high: 300.0
-    speed_threshold_critical: 500.0
-    range_threshold_low: 5000.0
-    range_threshold_high: 2000.0
+    speed_threshold_high: 240.0
+    speed_threshold_critical: 320.0
+    range_threshold_low: 6500.0
+    range_threshold_high: 2800.0
   
   # Launcher definitions
   launchers:
     1:
-      launcher_pos: [3000, 3000, 0]
+      launcher_pos: [2600, 3000, 0]
       missile_amount: 8
-      speed: 1000
+      speed: 950
       missile_type: "guided missile"
-      trigger_distance: 10.0
-      explosion_range: 100.0
-      traverse_speed: 30.0
-      elevation_speed: 20.0
-      reload_time: 10.0
+      trigger_distance: 18.0
+      explosion_range: 120.0
+      traverse_speed: 150.0
+      elevation_speed: 70.0
+      reload_time: 12.0
     
     2:
-      launcher_pos: [8000, 7000, 0]
+      launcher_pos: [7600, 7000, 0]
       missile_amount: 8
-      speed: 1200
+      speed: 1100
       missile_type: "guided missile"
-      trigger_distance: 15.0
+      trigger_distance: 18.0
       explosion_range: 150.0
+      traverse_speed: 150.0
+      elevation_speed: 70.0
     
     3:
       launcher_pos: [5000, 5000, 0]
       missile_amount: 12
-      speed: 1000
+      speed: 1250
       missile_type: "preemptive missile"
-      trigger_distance: 10.0
-      explosion_range: 100.0
+      trigger_distance: 16.0
+      explosion_range: 150.0
+      traverse_speed: 180.0
+      elevation_speed: 80.0
 
 Locator:
-  1:
-    time_step: 0.005
+  1:  # РЛС-1 (левая)
+    role: "tracking"  # левая - сопровождение
     position:
-      x: 4000
+      x: 1000
       y: 5000
       z: 0
-    omega_az: 15
-    omega_el: 8
-    r_max: 3000
-    dr: 10
-    beam_width_az: 2.0
-    beam_width_el: 2.0
-    scan_sector_az: [0, 360]
-    scan_sector_el: [0, 90]
-  
-  2:
-    time_step: 0.005
+    r_max: 8000
+    omega_az: 120
+    omega_el: 50
+    beam_width_az: 5.0
+    beam_width_el: 10.0
+    dr: 5.0
+    # ...
+
+  2:  # РЛС-2 (правая)
+    role: "tracking"  # левая - сопровождение
     position:
-      x: 6000
+      x: 9000
       y: 5000
       z: 0
-    omega_az: 15
-    omega_el: 8
-    r_max: 3000
-    dr: 10
-    beam_width_az: 2.0
-    beam_width_el: 2.0
-    scan_sector_az: [0, 360]
-    scan_sector_el: [0, 90]
+    r_max: 8000
+    omega_az: 120
+    omega_el: 50
+    beam_width_az: 5.0
+    beam_width_el: 10.0
+    dr: 5.0
+    # ...
+
+  3:  # РЛС-3 (центр, на ПБУ)
+    role: "search"    # центральная - только обзор
+    position:
+      x: 5000
+      y: 5000
+      z: 0
+    r_max: 8000
+    omega_az: 120
+    omega_el: 50
+    beam_width_az: 5.0
+    beam_width_el: 10.0
+    dr: 5.0
 
 # Scenario configuration (timed spawns)
 Scenario:
@@ -173,7 +169,7 @@ Visualization:
   fps: 30
   skip_frames: 5
   show_trails: true
-  trail_length: 20
+  trail_length: 40
   colors:
     radar: "blue"
     launcher: "orange"

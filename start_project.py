@@ -5,7 +5,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-import numpy as np
+
 
 ROOT_DIR = Path(__file__).resolve().parent
 SRC_DIR = ROOT_DIR / "src"
@@ -24,24 +24,23 @@ def run_command(command: list[str], env: dict[str, str] | None = None) -> int:
 class ADSSimulatorGUI:
     """GUI-enabled ADS simulator."""
 
-    def __init__(self, config_path: str = "config.yaml", auto_start: bool = False):
+    def __init__(self, config_path: str = "config.yaml"):
         import yaml
         import matplotlib.pyplot as plt
         from matplotlib.animation import FuncAnimation
 
-        from src.air_environment import AirEnvironment
-        from src.dispatcher import SimulationDispatcher
-        from src.event_types import EventBus, EventType, SimulationEvent
-        from src.gui import GUI
-        from src.pbu import Pbu
-        from src.radar import RadarSystem, Transmitter, Receiver
-        from src.simulation_clock import SimulationClock
+        from air_environment import AirEnvironment
+        from dispatcher import SimulationDispatcher
+        from event_types import EventBus, EventType, SimulationEvent
+        from gui import GUI
+        from pbu import Pbu
+        from radar import Radar
+        from simulation_clock import SimulationClock
 
         self.plt = plt
         self.FuncAnimation = FuncAnimation
         self.EventType = EventType
         self.SimulationEvent = SimulationEvent
-        self.auto_start = auto_start
 
         with open(config_path, "r", encoding="utf-8") as file:
             self.config = yaml.safe_load(file)
@@ -50,53 +49,14 @@ class ADSSimulatorGUI:
         self.env = AirEnvironment("config_file", self.config["Environment"], self.event_bus)
         self.pbu = Pbu("config_file", self.config["Pbu"], self.event_bus)
 
-        # Создание радаров с использованием новой архитектуры RadarSystem
         self.radars = []
-        time_step = self.config["Environment"]["time_step"]
-
-        for radar_id_str, radar_cfg in self.config["Locator"].items():
-            radar_id = int(radar_id_str)
-
-            # Получение позиции из конфига
-            position = radar_cfg.get("position", {"x": 0, "y": 0, "z": 0})
-            pos_array = np.array([position["x"], position["y"], position["z"]])
-
-            # Создание RadarSystem
-            radar = RadarSystem(radar_id=radar_id, position=pos_array, dt=time_step)
-
-            # Настройка передатчика из конфига
-            if "transmitter" in radar_cfg:
-                tx = radar_cfg["transmitter"]
-                radar.transmitter = Transmitter(
-                    power_w=tx.get("power_w", 10000.0),
-                    gain_db=tx.get("gain_db", 40.0),
-                    frequency_hz=tx.get("frequency_hz", 3e9),
-                    bandwidth_hz=tx.get("bandwidth_hz", 1e6)
-                )
-
-            # Настройка приёмника из конфига
-            if "receiver" in radar_cfg:
-                rx = radar_cfg["receiver"]
-                radar.receiver = Receiver(
-                    noise_temp_k=rx.get("noise_temp_k", 290.0),
-                    losses_db=rx.get("losses_db", 3.0),
-                    azimuth_beamwidth_rad=rx.get("azimuth_beamwidth_rad", 0.0175),
-                    elevation_beamwidth_rad=rx.get("elevation_beamwidth_rad", 0.0175),
-                    km=rx.get("km", 1.0)
-                )
-
-            # Настройка параметров сканирования
-            radar.r_max = radar_cfg.get("r_max", 2000.0)
-            radar.dr = radar_cfg.get("dr", 10.0)
-            radar.omega_az = np.radians(radar_cfg.get("omega_az", 15.0)) * time_step
-            radar.omega_el = np.radians(radar_cfg.get("omega_el", 8.0)) * time_step
-            radar.beam_width_az = np.radians(radar_cfg.get("beam_width_az", 2.0))
-            radar.beam_width_el = np.radians(radar_cfg.get("beam_width_el", 2.0))
-
+        for radar_id, radar_cfg in self.config["Locator"].items():
+            radar = Radar(radar_id=int(radar_id), event_bus=self.event_bus)
+            radar.initialize_with_file_data(radar_cfg)
             self.radars.append(radar)
 
         self.clock = SimulationClock(
-            time_step=time_step,
+            time_step=self.config["Environment"]["time_step"],
             event_bus=self.event_bus,
         )
         self.gui = GUI(self.event_bus)
@@ -118,16 +78,13 @@ class ADSSimulatorGUI:
 
     def update(self, _frame: int):
         """Update callback for animation and smoke tests."""
-        # Обновляем GUI кэш для отображения статической картинки
+        for _ in range(self.skip_frames):
+            self.clock.tick()
+
         self.dispatcher.update_gui_cache()
         self.gui.render()
 
-        # Только если auto_start включен, выполняем тики симуляции
-        if self.auto_start:
-            for _ in range(self.skip_frames):
-                self.clock.tick()
-
-        if not self.clock.is_running() and self.auto_start:
+        if not self.clock.is_running():
             self.plt.close()
             return []
 
@@ -139,14 +96,7 @@ class ADSSimulatorGUI:
         print("\n" + "=" * 60)
         print(" AIR DEFENSE SIMULATOR - GUI MODE")
         print("=" * 60)
-
-        if not self.auto_start:
-            print(" [СТАТИЧЕСКИЙ РЕЖИМ] - Симуляция остановлена")
-            print(" Нажмите SPACE для запуска")
-        else:
-            print(" [АВТОМАТИЧЕСКИЙ РЕЖИМ] - Симуляция запущена")
-
-        print("\nControls:")
+        print("Controls:")
         print("  SPACE - Pause/Resume")
         print("  R     - Reset View")
         print("  1     - Top-Down View")
@@ -157,10 +107,7 @@ class ADSSimulatorGUI:
         print("  ESC   - Clear Selection")
         print("=" * 60 + "\n")
 
-        # Запускаем часы только если auto_start включен
-        if self.auto_start:
-            self.clock.start()
-
+        self.clock.start()
         self.animation = self.FuncAnimation(
             self.gui.fig,
             self.update,
@@ -171,32 +118,17 @@ class ADSSimulatorGUI:
         )
 
         def toggle_pause():
-            if self.auto_start:
-                # Если auto_start включен, переключаем паузу
-                self.event_bus.publish(
-                    self.SimulationEvent(
-                        event_type=self.EventType.OPERATOR_COMMAND,
-                        source_id="gui",
-                        data={"command": "toggle_pause"},
-                    )
+            self.event_bus.publish(
+                self.SimulationEvent(
+                    event_type=self.EventType.OPERATOR_COMMAND,
+                    source_id="gui",
+                    data={"command": "toggle_pause"},
                 )
-            else:
-                # Если auto_start выключен, запускаем симуляцию при первом нажатии SPACE
-                self.auto_start = True
-                self.clock.start()
-                print("\n [ЗАПУСК] Симуляция начата\n")
+            )
 
         self.gui.set_pause_callback(toggle_pause)
-
-        # Первый рендер для отображения статической картинки
-        self.dispatcher.update_gui_cache()
-        self.gui.render()
-
         self.plt.show()
-
-        if self.auto_start:
-            self.clock.stop()
-
+        self.clock.stop()
         self.print_summary()
 
     def print_summary(self) -> None:
@@ -204,23 +136,23 @@ class ADSSimulatorGUI:
         print(" SIMULATION SUMMARY")
         print("=" * 60)
         print(f"  Simulation time: {self.clock.current_time:.1f}s")
-        print(f"  Active targets: {len(self.env.get_active_targets())}")
-        print(f"  Targets destroyed: {self.env.total_targets_destroyed}")
-        print(f"  Missiles launched: {self.env.total_missiles_launched}")
-        print(f"  Tracks: {sum(len(radar.tracks) for radar in self.radars)}")
+        print(f" Active targets: {len(self.env.get_active_targets())}")
+        print(f" Targets destroyed: {self.env.total_targets_destroyed}")
+        print(f" Missiles launched: {self.env.total_missiles_launched}")
+        print(f" Tracks: {sum(len(radar.tracks) for radar in self.radars)}")
         print("=" * 60)
 
 
-def run_gui(config_path: str, auto_start: bool = False) -> int:
+def run_gui(config_path: str) -> int:
     """Run the GUI mode."""
-    simulator = ADSSimulatorGUI(config_path, auto_start=auto_start)
+    simulator = ADSSimulatorGUI(config_path)
     simulator.run()
     return 0
 
 
 def run_headless(config_path: str, duration: float) -> int:
     """Run headless mode directly through the simulator."""
-    from src.main import AirDefenseSimulator
+    from main import AirDefenseSimulator
 
     simulator = AirDefenseSimulator(config_path=config_path)
     simulator.initialize()
@@ -233,11 +165,11 @@ def run_quick(config_path: str) -> int:
     import yaml
     import numpy as np
 
-    from src.air_environment import AirEnvironment
-    from src.event_types import EventBus
-    from src.pbu import Pbu
-    from src.radar import RadarSystem, Transmitter, Receiver
-    from src.simulation_clock import SimulationClock
+    from air_environment import AirEnvironment
+    from event_types import EventBus
+    from pbu import Pbu
+    from radar import Radar
+    from simulation_clock import SimulationClock
 
     with open(config_path, "r", encoding="utf-8") as file:
         config = yaml.safe_load(file)
@@ -249,46 +181,13 @@ def run_quick(config_path: str) -> int:
     env = AirEnvironment("config_file", config["Environment"], event_bus)
     pbu = Pbu("config_file", config["Pbu"], event_bus)
 
-    time_step = config["Environment"]["time_step"]
     radars = []
-
-    for radar_id_str, radar_cfg in config["Locator"].items():
-        radar_id = int(radar_id_str)
-
-        # Получение позиции
-        position = radar_cfg.get("position", {"x": 0, "y": 0, "z": 0})
-        pos_array = np.array([position["x"], position["y"], position["z"]])
-
-        # Создание RadarSystem
-        radar = RadarSystem(radar_id=radar_id, position=pos_array, dt=time_step)
-
-        # Настройка передатчика
-        if "transmitter" in radar_cfg:
-            tx = radar_cfg["transmitter"]
-            radar.transmitter = Transmitter(
-                power_w=tx.get("power_w", 10000.0),
-                gain_db=tx.get("gain_db", 40.0),
-                frequency_hz=tx.get("frequency_hz", 3e9),
-                bandwidth_hz=tx.get("bandwidth_hz", 1e6)
-            )
-
-        # Настройка приёмника
-        if "receiver" in radar_cfg:
-            rx = radar_cfg["receiver"]
-            radar.receiver = Receiver(
-                noise_temp_k=rx.get("noise_temp_k", 290.0),
-                losses_db=rx.get("losses_db", 3.0),
-                azimuth_beamwidth_rad=rx.get("azimuth_beamwidth_rad", 0.0175),
-                elevation_beamwidth_rad=rx.get("elevation_beamwidth_rad", 0.0175)
-            )
-
-        # Настройка параметров
-        radar.r_max = radar_cfg.get("r_max", 2000.0)
-        radar.dr = radar_cfg.get("dr", 10.0)
-        radar.omega_az = np.radians(radar_cfg.get("omega_az", 15.0)) * time_step
-        radar.omega_el = np.radians(radar_cfg.get("omega_el", 8.0)) * time_step
-
+    for radar_id, radar_cfg in config["Locator"].items():
+        radar = Radar(radar_id=int(radar_id), event_bus=event_bus)
+        radar.initialize_with_file_data(radar_cfg)
         radars.append(radar)
+    for launcher in pbu.launchers.values():
+        launcher.bind_environment(env)
 
     print(" Loaded:")
     print(f"  - {len(env.targets)} targets")
@@ -320,33 +219,42 @@ def run_quick(config_path: str) -> int:
             f"range={radar.r_max}m"
         )
 
-    clock = SimulationClock(time_step=time_step, event_bus=event_bus)
+    clock = SimulationClock(time_step=config["Environment"]["time_step"], event_bus=event_bus)
     clock.register_component("Environment", env.update, 10)
-
     for index, radar in enumerate(radars):
         clock.register_component(
             f"Radar_{radar.id}",
-            lambda dt, active_radar=radar: _update_radar(active_radar, dt, env, pbu),
+            lambda dt, active_radar=radar: active_radar.update(dt, env),
             20 + index,
         )
-
     clock.register_component("PBU", pbu.update, 30)
+    for launcher_id, launcher in pbu.launchers.items():
+        clock.register_component(f"Launcher_{launcher_id}", launcher.update, 40)
 
     print("\n System ready for simulation!")
-    print("\nRunning 1 second of simulation (200 ticks)...")
+    quick_duration = 10.0
+    quick_ticks = int(quick_duration / config["Environment"]["time_step"])
+    progress_interval = max(1, quick_ticks // 4)
+    print(f"\nRunning {quick_duration:.1f} seconds of simulation ({quick_ticks} ticks)...")
 
     clock.start()
-    for tick_index in range(200):
+    for tick_index in range(quick_ticks):
         clock.tick()
-        if tick_index % 50 == 0:
+        if tick_index % progress_interval == 0:
             active_targets = sum(1 for target in env.targets.values() if not target.destroyed)
-            print(f"  Tick {tick_index}: time={clock.current_time:.2f}s, active targets={active_targets}")
+            print(
+                f"  Tick {tick_index}: time={clock.current_time:.2f}s, "
+                f"active targets={active_targets}, tracked={len(pbu.targets)}, launched={env.total_missiles_launched}"
+            )
     clock.stop()
 
     print("\n Test complete!")
     print(f"  Final time: {clock.current_time:.2f}s")
     print(f"  Ticks processed: {clock.tick_count}")
     print(f"  Average tick time: {clock.get_average_tick_time() * 1000:.2f} ms")
+    print(f"  Tracks formed: {len(pbu.targets)}")
+    print(f"  Missiles launched: {env.total_missiles_launched}")
+    print(f"  Targets destroyed: {env.total_targets_destroyed}")
 
     print("\n Final Target Positions:")
     for target_id, target in env.targets.items():
@@ -355,37 +263,6 @@ def run_quick(config_path: str) -> int:
             print(f"  Target {target_id}: ({pos[0]:.0f}, {pos[1]:.0f}, {pos[2]:.0f})")
 
     return 0
-
-
-def _update_radar(radar, dt: float, env, pbu) -> None:
-    """
-    Вспомогательная функция для обновления радара.
-    """
-    radar.dt = dt
-    radar.update_scan()
-
-    az, el = radar.get_beam_direction()
-
-    # Сканирование по дальности
-    for r in np.arange(0, radar.r_max, radar.dr):
-        beam_pos = radar.get_beam_position(r)
-
-        for target_id, target in env.targets.items():
-            if target.status.value != 2:  # TargetStatus.ACTIVE = 2
-                continue
-
-            if radar.is_target_in_beam(target.position, r):
-                measurement = env.get_noisy_measurement(target_id, radar.position)
-                if measurement is not None:
-                    track_id = radar.process_measurement(measurement)
-                    if track_id is not None:
-                        for track_data in radar.get_track_data():
-                            if track_data["track_id"] == track_id:
-                                pbu.process_radar_track(radar.id, track_data)
-                                break
-                    break
-
-    radar.update_tracks()
 
 
 def run_tests() -> int:
@@ -398,7 +275,7 @@ def run_gui_smoke(config_path: str, ticks: int) -> int:
     import matplotlib
 
     matplotlib.use("Agg")
-    simulator = ADSSimulatorGUI(config_path, auto_start=False)
+    simulator = ADSSimulatorGUI(config_path)
     simulator.clock.start()
     for tick_index in range(ticks):
         simulator.update(tick_index)
@@ -455,18 +332,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=3,
         help="Tick count for gui-smoke mode.",
     )
-    parser.add_argument(
-        "--no-auto-start",
-        action="store_true",
-        default=True,
-        help="Don't start simulation automatically (show static view).",
-    )
-    parser.add_argument(
-        "--auto-start",
-        action="store_true",
-        default=False,
-        help="Start simulation automatically.",
-    )
     return parser
 
 
@@ -485,9 +350,7 @@ def main() -> int:
     config_path = resolve_config_path(args.config)
 
     if args.mode == "gui":
-        # По умолчанию auto_start = False (статический режим)
-        auto_start = args.auto_start if hasattr(args, 'auto_start') else False
-        return run_gui(config_path, auto_start=auto_start)
+        return run_gui(config_path)
     if args.mode == "headless":
         return run_headless(config_path, args.duration)
     if args.mode == "quick":
