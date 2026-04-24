@@ -60,7 +60,7 @@ class TargetInfo:
     
     # History
     position_history: List[np.ndarray] = field(default_factory=list)
-    max_history: int = 20
+    max_history: int = 80
 
 
 @dataclass
@@ -159,8 +159,8 @@ class EngagementPlanner:
     
     def __init__(self):
         self.min_intercept_altitude = 50.0
-        self.max_engagement_range = 5000.0
-        self.preferred_engagement_range = 3000.0
+        self.max_engagement_range = 7000.0
+        self.preferred_engagement_range = 4000.0
     
     def plan_engagement(self, target_info: TargetInfo, 
                         launchers: Dict[int, Launcher]) -> Optional[EngagementPlan]:
@@ -183,7 +183,9 @@ class EngagementPlanner:
             
             # Calculate intercept
             intercept_result = self._calculate_intercept(
-                launcher.position, target_info
+                launcher.position,
+                target_info,
+                getattr(launcher, "speed", 1000.0)
             )
             
             if intercept_result is None:
@@ -207,12 +209,10 @@ class EngagementPlanner:
             estimated_intercept_time=best_intercept_time
         )
     
-    def _calculate_intercept(self, launcher_pos: np.ndarray, 
-                             target_info: TargetInfo) -> Optional[Tuple[np.ndarray, float]]:
+    def _calculate_intercept(self, launcher_pos: np.ndarray,
+                             target_info: TargetInfo,
+                             missile_speed: float = 1000.0) -> Optional[Tuple[np.ndarray, float]]:
         """Calculate intercept point and time."""
-        # Simplified intercept calculation
-        missile_speed = 1000.0  # m/s
-        
         target_pos = target_info.position
         target_vel = target_info.velocity
         
@@ -224,17 +224,28 @@ class EngagementPlanner:
         b = 2 * np.dot(rel_pos, target_vel)
         c = np.dot(rel_pos, rel_pos)
         
-        discriminant = b**2 - 4*a*c
-        
-        if discriminant < 0:
-            return None
-        
-        t1 = (-b + math.sqrt(discriminant)) / (2*a)
-        t2 = (-b - math.sqrt(discriminant)) / (2*a)
-        
-        intercept_time = min(t for t in [t1, t2] if t > 0)
-        
-        if intercept_time <= 0:
+        if abs(a) < 1e-6:
+            if abs(b) < 1e-6:
+                return None
+            intercept_time = -c / b
+            if intercept_time <= 0:
+                return None
+        else:
+            discriminant = b**2 - 4*a*c
+            if discriminant < 0:
+                return None
+
+            sqrt_discriminant = math.sqrt(discriminant)
+            candidate_times = [
+                (-b + sqrt_discriminant) / (2 * a),
+                (-b - sqrt_discriminant) / (2 * a),
+            ]
+            positive_times = [time for time in candidate_times if time > 0]
+            if not positive_times:
+                return None
+            intercept_time = min(positive_times)
+
+        if intercept_time <= 0 or intercept_time > 60.0:
             return None
         
         intercept_point = target_pos + target_vel * intercept_time
@@ -534,25 +545,30 @@ class Pbu:
         
         # Clean up old engagements
         self._cleanup_engagements()
-
+    
     def process_radar_track(self, radar_id: int, track_data: Dict[str, Any]) -> None:
         """Process track data from a radar."""
         target_id = track_data.get("target_id")
-
+        
         if target_id is None:
+            # New track without target ID
             target_id = self._register_new_target(track_data)
-
+        
         if target_id not in self.targets:
             self.targets[target_id] = TargetInfo(target_id=target_id)
-
+        
         target_info = self.targets[target_id]
         target_info.track_id = track_data.get("track_id")
         target_info.radar_id = radar_id
         target_info.position = np.array(track_data["position"])
-        target_info.velocity = np.array(track_data.get("velocity", [0, 0, 0]))
+        target_info.velocity = np.array(track_data["velocity"])
         target_info.estimated_rcs = track_data.get("estimated_rcs", 1.0)
+        target_type_name = str(track_data.get("target_type", target_info.target_type.name)).upper()
+        if target_type_name in TargetType.__members__:
+            target_info.target_type = TargetType[target_type_name]
         target_info.last_update = self.current_time
-
+        
+        # Update history
         target_info.position_history.append(target_info.position.copy())
         if len(target_info.position_history) > target_info.max_history:
             target_info.position_history.pop(0)
@@ -569,7 +585,24 @@ class Pbu:
                 "estimated_rcs": target_info.estimated_rcs
             }
         ))
-    
+
+    def _get_best_tracking_radar(self, target_position: np.ndarray) -> Optional[int]:
+        """Выбрать лучшую нецентральную РЛС для сопровождения цели."""
+        best_radar_id = None
+        best_distance = float('inf')
+
+        for radar_id, radar in self.radars.items():
+            # Пропускаем центральную РЛС (если есть роль "search")
+            if getattr(radar, 'role', 'tracking') == 'search':
+                continue
+
+            distance = dist(radar.position, target_position)
+            if distance < best_distance:
+                best_distance = distance
+                best_radar_id = radar_id
+
+        return best_radar_id
+
     def _register_new_target(self, track_data: Dict[str, Any]) -> int:
         """Register a new target and assign an ID."""
         new_pos = np.array(track_data["position"])
@@ -644,12 +677,12 @@ class Pbu:
                     "distance_to_asset": distance
                 }
             ))
-    
+
     def _make_engagement_decisions(self) -> None:
         """Make decisions about which targets to engage."""
         if self.current_time - self.last_engagement_time < self.min_engagement_interval:
             return
-        
+
         # Get unengaged targets sorted by priority
         unengaged_targets = [
             (tid, info) for tid, info in self.targets.items()
@@ -657,23 +690,24 @@ class Pbu:
             and info.threat_level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]
             and self.current_time - info.last_update < 5.0
         ]
-        
+
         unengaged_targets.sort(key=lambda x: x[1].priority, reverse=True)
-        
+
         for target_id, target_info in unengaged_targets:
             # Check if we have available launchers
             available_launchers = {
                 lid: l for lid, l in self.launchers.items()
                 if l.get_missile_count() > 0
-                and l.status not in [LauncherStatus.EMPTY, LauncherStatus.RELOADING]
+                and l.status in [LauncherStatus.IDLE, LauncherStatus.READY_TO_FIRE]
+                and l.assigned_target_id is None
             }
-            
+
             if not available_launchers:
                 break
-            
+
             # Plan engagement
             plan = self.engagement_planner.plan_engagement(target_info, available_launchers)
-            
+
             if plan is not None:
                 self._execute_engagement(plan, target_info)
                 self.last_engagement_time = self.current_time
@@ -703,7 +737,7 @@ class Pbu:
                 target_id=f"radar_{target_info.radar_id}",
                 data={
                     "radar_id": target_info.radar_id,
-                    "mode": "TRACK",
+                    "mode": "MULTI_TRACK",
                     "track_id": target_info.track_id,
                     "target_id": plan.target_id
                 }
@@ -799,7 +833,9 @@ class Pbu:
             return None
         
         intercept_result = self.engagement_planner._calculate_intercept(
-            launcher.position, target_info
+            launcher.position,
+            target_info,
+            getattr(launcher, "speed", 1000.0)
         )
         
         if intercept_result is None:

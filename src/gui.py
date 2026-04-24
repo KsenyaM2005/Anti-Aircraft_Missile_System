@@ -38,6 +38,7 @@ class DisplayLayer(Enum):
 @dataclass
 class RenderCache:
     targets: Dict[int, Dict[str, Any]] = field(default_factory=dict)
+    tracks: Dict[int, Dict[str, Any]] = field(default_factory=dict)
     missiles: Dict[int, Dict[str, Any]] = field(default_factory=dict)
     radars: Dict[int, Dict[str, Any]] = field(default_factory=dict)
     launchers: Dict[int, Dict[str, Any]] = field(default_factory=dict)
@@ -277,11 +278,48 @@ class GUI:
         if selected is not None:
             self.selected_object_type, self.selected_object_id = selected
 
-    def update_cache(self, targets: Dict[int, Any], missiles: Dict[int, Any], radars: List[Any], launchers: Dict[int, Any], defended_assets: List[np.ndarray], simulation_time: Optional[float] = None) -> None:
+    def update_cache(
+        self,
+        targets: Dict[int, Any],
+        missiles: Dict[int, Any],
+        radars: List[Any],
+        launchers: Dict[int, Any],
+        defended_assets: List[np.ndarray],
+        track_estimates: Optional[Dict[int, Any]] = None,
+        simulation_time: Optional[float] = None
+    ) -> None:
         self.cache.targets = {tid: {"position": target.position.copy(), "velocity": target.velocity.copy(), "status": target.status.name, "threat_level": getattr(target, "threat_level", "NONE"), "type": getattr(target, "target_type", "UNKNOWN").name} for tid, target in targets.items()}
         self.cache.missiles = {mid: {"position": missile.position.copy(), "velocity": missile.velocity.copy(), "status": missile.status.name, "target_id": getattr(missile, "assigned_target_id", None)} for mid, missile in missiles.items()}
-        self.cache.radars = {radar.id: {"position": radar.position.copy(), "mode": radar.mode.name, "r_max": radar.r_max, "beam_points": {"x": radar.curr_ray_x.copy() if radar.curr_ray_x else [], "y": radar.curr_ray_y.copy() if radar.curr_ray_y else [], "z": radar.curr_ray_z.copy() if radar.curr_ray_z else []}} for radar in radars}
+        self.cache.radars = {
+            radar.id: {
+                "position": radar.position.copy(),
+                "mode": radar.mode.name,
+                "r_max": radar.r_max,
+                "beam_points": {
+                    "x": radar.curr_ray_x.copy() if radar.curr_ray_x else [],
+                    "y": radar.curr_ray_y.copy() if radar.curr_ray_y else [],
+                    "z": radar.curr_ray_z.copy() if radar.curr_ray_z else []
+                },
+                "beam_polygon_xy": [tuple(point) for point in getattr(radar, "curr_beam_xy", [])],
+                "beam_polygon_xz": [tuple(point) for point in getattr(radar, "curr_beam_xz", [])],
+            }
+            for radar in radars
+        }
         self.cache.launchers = {lid: {"position": launcher.position.copy(), "status": launcher.status.name, "missile_count": launcher.get_missile_count()} for lid, launcher in launchers.items()}
+        self.cache.tracks = {}
+        for target_id, track in (track_estimates or {}).items():
+            history = [np.array(position, dtype=np.float64) for position in getattr(track, "position_history", [])]
+            current_position = np.array(getattr(track, "position", np.zeros(3)), dtype=np.float64)
+            if not history:
+                history = [current_position.copy()]
+            self.cache.tracks[target_id] = {
+                "position": current_position,
+                "history": history,
+                "threat_level": getattr(getattr(track, "threat_level", None), "name", "NONE"),
+                "engagement_status": getattr(getattr(track, "engagement_status", None), "name", "UNENGAGED"),
+                "assigned_launcher_id": getattr(track, "assigned_launcher_id", None),
+                "radar_id": getattr(track, "radar_id", None),
+            }
         self.cache.defended_assets = [np.array(asset, dtype=np.float64) for asset in defended_assets]
         if simulation_time is not None:
             self.cache.simulation_time = float(simulation_time)
@@ -358,6 +396,10 @@ class GUI:
             ax.scatter(pos[0], pos[1], marker="s", s=100, color=self.colors["radar"])
             if self.layer_visibility[DisplayLayer.DETECTION_RANGES]:
                 ax.add_patch(Circle((pos[0], pos[1]), radar["r_max"], fill=False, edgecolor=self.colors["radar"], alpha=0.25, linestyle="--"))
+            if radar["beam_polygon_xy"]:
+                beam_xy = np.array(radar["beam_polygon_xy"], dtype=np.float64)
+                ax.fill(beam_xy[:, 0], beam_xy[:, 1], color=self.colors["radar"], alpha=0.10)
+                ax.plot(beam_xy[:, 0], beam_xy[:, 1], color=self.colors["radar"], alpha=0.28, linewidth=0.7)
             if radar["beam_points"]["x"]:
                 ax.plot(radar["beam_points"]["x"], radar["beam_points"]["y"], color=self.colors["radar"], alpha=0.35, linewidth=0.6)
             if self.layer_visibility[DisplayLayer.LABELS]:
@@ -377,6 +419,17 @@ class GUI:
                 ax.plot(trail_arr[:, 0], trail_arr[:, 1], color=self._get_target_color(trail_id), alpha=0.3, linewidth=1)
             elif isinstance(trail_id, str) and trail_id.startswith("missile_"):
                 ax.plot(trail_arr[:, 0], trail_arr[:, 1], color=self.colors["missile_trail"], alpha=0.35, linewidth=1)
+        for target_id, track in sorted(self.cache.tracks.items()):
+            history = np.array(track["history"], dtype=np.float64)
+            if len(history) > 1:
+                ax.plot(history[:, 0], history[:, 1], color=self._get_target_color(target_id), alpha=0.85, linewidth=1.1, linestyle="--")
+            pos = track["position"]
+            ax.scatter(pos[0], pos[1], marker="D", s=34, facecolors="none", edgecolors=self._get_target_color(target_id), linewidth=1.2)
+            launcher_id = track.get("assigned_launcher_id")
+            launcher = self.cache.launchers.get(launcher_id)
+            if launcher is not None:
+                launcher_pos = launcher["position"]
+                ax.plot([launcher_pos[0], pos[0]], [launcher_pos[1], pos[1]], color=self.colors["launcher"], alpha=0.18, linewidth=0.8, linestyle=":")
         for target_id, target in sorted(self.cache.targets.items()):
             pos = target["position"]
             selected = target_id == self.selected_object_id and self.selected_object_type == "target"
@@ -391,6 +444,10 @@ class GUI:
         for radar_id, radar in sorted(self.cache.radars.items()):
             pos = radar["position"]
             ax.scatter(pos[0], pos[2], marker="s", s=100, color=self.colors["radar"])
+            if radar["beam_polygon_xz"]:
+                beam_xz = np.array(radar["beam_polygon_xz"], dtype=np.float64)
+                ax.fill(beam_xz[:, 0], beam_xz[:, 1], color=self.colors["radar"], alpha=0.10)
+                ax.plot(beam_xz[:, 0], beam_xz[:, 1], color=self.colors["radar"], alpha=0.28, linewidth=0.7)
             if radar["beam_points"]["x"]:
                 ax.plot(radar["beam_points"]["x"], radar["beam_points"]["z"], color=self.colors["radar"], alpha=0.35, linewidth=0.6)
             if self.layer_visibility[DisplayLayer.LABELS]:
@@ -398,6 +455,8 @@ class GUI:
         for launcher_id, launcher in sorted(self.cache.launchers.items()):
             pos = launcher["position"]
             ax.scatter(pos[0], pos[2], marker="^", s=120, color=self.colors["launcher"])
+            if self.layer_visibility[DisplayLayer.LABELS]:
+                ax.annotate(f"L{launcher_id}", xy=(pos[0], pos[2]), xytext=(6, 6), textcoords="offset points", color=self.colors["text"], fontsize=8)
         for asset in self.cache.defended_assets:
             ax.scatter(asset[0], asset[2], marker="*", s=220, color=self.colors["defended_asset"], edgecolors="black", linewidth=1)
         for trail_id, trail in self.cache.trails.items():
@@ -408,6 +467,12 @@ class GUI:
                 ax.plot(trail_arr[:, 0], trail_arr[:, 2], color=self._get_target_color(trail_id), alpha=0.25, linewidth=1)
             elif isinstance(trail_id, str) and trail_id.startswith("missile_"):
                 ax.plot(trail_arr[:, 0], trail_arr[:, 2], color=self.colors["missile_trail"], alpha=0.35, linewidth=1)
+        for target_id, track in sorted(self.cache.tracks.items()):
+            history = np.array(track["history"], dtype=np.float64)
+            if len(history) > 1:
+                ax.plot(history[:, 0], history[:, 2], color=self._get_target_color(target_id), alpha=0.85, linewidth=1.1, linestyle="--")
+            pos = track["position"]
+            ax.scatter(pos[0], pos[2], marker="D", s=34, facecolors="none", edgecolors=self._get_target_color(target_id), linewidth=1.2)
         for target_id, target in sorted(self.cache.targets.items()):
             pos = target["position"]
             ax.scatter(pos[0], pos[2], marker="o", s=50, color=self._get_target_color(target_id))
@@ -416,7 +481,10 @@ class GUI:
             ax.scatter(pos[0], pos[2], marker="x", s=35, color=self.colors["missile"])
 
     def _get_target_color(self, target_id: int) -> str:
-        threat = self.cache.targets.get(target_id, {}).get("threat_level", "NONE")
+        threat = self.cache.tracks.get(target_id, {}).get(
+            "threat_level",
+            self.cache.targets.get(target_id, {}).get("threat_level", "NONE")
+        )
         if threat == "CRITICAL":
             return self.colors["target_critical"]
         if threat == "HIGH":
@@ -431,8 +499,9 @@ class GUI:
         self.ax_hud.patch.set_alpha(0.85)
         self.ax_hud.axis("off")
         active_targets = len([t for t in self.cache.targets.values() if t.get("status") == "ACTIVE"])
+        active_tracks = len([track for track in self.cache.tracks.values() if track.get("engagement_status") != "INTERCEPTED"])
         active_missiles = len([m for m in self.cache.missiles.values() if m.get("status") in ["BOOSTING", "CRUISING", "TERMINAL"]])
-        lines = [f"SIM TIME: {self.cache.simulation_time:.1f}s", "", f"TARGETS: {active_targets}", f"MISSILES: {active_missiles}", "", "LAUNCHERS:"]
+        lines = [f"SIM TIME: {self.cache.simulation_time:.1f}s", "", f"TARGETS: {active_targets}", f"TRACKS: {active_tracks}", f"MISSILES: {active_missiles}", "", "LAUNCHERS:"]
         for launcher_id in sorted(self.cache.launchers):
             launcher = self.cache.launchers[launcher_id]
             lines.append(f"  L{launcher_id}: {launcher.get('missile_count', 0)} | {launcher.get('status', 'IDLE')}")

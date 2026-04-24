@@ -11,7 +11,6 @@ from trajectory import create_trajectory
 from misc import dist
 from logs import environment_logger as logger
 from event_types import EventBus, SimulationEvent, EventType
-from radar import Measurement
 
 
 class WeatherCondition(Enum):
@@ -230,7 +229,10 @@ class AirEnvironment:
             self.add_target(
                 trajectory_type=params.get("trajectory_type", "uniform"),
                 id=target_id,
-                trajectory_arguments=params.get("trajectory_arguments", {})
+                trajectory_arguments=params.get("trajectory_arguments", {}),
+                type=params.get("type", "UNKNOWN"),
+                rcs=params.get("rcs", 1.0),
+                rcs_fluctuation=params.get("rcs_fluctuation", 0.1),
             )
         
         return True
@@ -491,44 +493,36 @@ class AirEnvironment:
         except Exception as e:
             logger.error(f"Environment: adding projectile failed: {e}")
             return False
-
-    def get_noisy_measurement(self, target_id: int, radar_position: np.ndarray):
+    
+    def get_noisy_measurement(self, target_id: int, radar_position: np.ndarray) -> Optional[Dict[str, Any]]:
         """
-        Получение зашумлённого измерения для радара.
-        Возвращает Measurement в формате новой архитектуры.
+        Get noisy radar measurement for a target.
+        Simulates the "Зашумленные координаты" from the diagram.
         """
         target = self.targets.get(target_id)
         if target is None or target.status != TargetStatus.ACTIVE:
             return None
-
+        
         noisy_pos = self.radar_noise_model.apply_noise_to_position(
             target.position, radar_position, self.atmosphere
         )
-
+        
         if noisy_pos is None:
-            return None
-
+            return None  # Not detected
+        
         noisy_rcs = self.radar_noise_model.apply_noise_to_rcs(
             target.signature.get_current_rcs(), self.atmosphere
         )
-
-        relative = noisy_pos - radar_position
-        r = np.linalg.norm(relative)
-        az = math.atan2(relative[1], relative[0])
-        el = math.asin(relative[2] / r) if r > 0 else 0
-
-        measurement = Measurement(
-            timestamp=self.scenario_time,
-            position=noisy_pos,
-            range_m=r,
-            azimuth_rad=az,
-            elevation_rad=el,
-            rcs=noisy_rcs,
-            snr_db=20.0,
-            target_id=target_id
-        )
-
-        return measurement
+        
+        return {
+            "target_id": target_id,
+            "position": noisy_pos,
+            "true_position": target.position.copy(),
+            "rcs": noisy_rcs,
+            "velocity": target.velocity.copy(),
+            "target_type": target.target_type.name,
+            "timestamp": self.scenario_time
+        }
     
     def check_exploded(self):
         """Check for exploded missiles and affected targets."""

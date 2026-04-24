@@ -80,6 +80,7 @@ class Missile:
         self.guidance_commands: List[Dict[str, Any]] = []
         self.last_guidance_update: float = 0.0
         self.intercept_point: Optional[np.ndarray] = None
+        self.desired_direction: np.ndarray = np.array([1.0, 0.0, 0.0], dtype=np.float64)
         
         # Navigation constant for proportional navigation
         self.N = 3.0
@@ -167,6 +168,22 @@ class Missile:
         
         # Update telemetry
         self._update_telemetry()
+
+        # Если нет команды от ПБУ, но есть цель - наводимся сами
+        if guidance_command is None and self.target_position is not None and self.is_active():
+            # Просто поворачиваем к цели
+            direction_to_target = normalize(self.target_position - self.position)
+            # Плавный поворот
+            current_dir = normalize(self.velocity) if np.linalg.norm(self.velocity) > 0 else direction_to_target
+            self.desired_direction = direction_to_target
+            # Поворачиваем
+            turn_rate = 0.2  # коэффициент поворота
+            new_dir = current_dir * (1 - turn_rate) + direction_to_target * turn_rate
+            new_dir = normalize(new_dir)
+            # Меняем скорость
+            speed = np.linalg.norm(self.velocity)
+            if speed > 0:
+                self.velocity = new_dir * speed
     
     def _update_flight_phase(self):
         """Update missile flight phase based on time."""
@@ -215,6 +232,7 @@ class Missile:
         # Simple pursuit guidance (fallback)
         if "desired_direction" not in locals():
             desired_direction = normalize(self.target_position - self.position)
+        self.desired_direction = desired_direction
         
         # Calculate required acceleration
         current_direction = normalize(self.velocity) if np.linalg.norm(self.velocity) > 0 else desired_direction
@@ -224,8 +242,14 @@ class Missile:
         max_accel = self.params.acceleration
         if self.status == MissileStatus.BOOSTING:
             max_accel *= 1.5
-        
-        self.acceleration = np.clip(direction_error * max_accel * 10, -max_accel, max_accel)
+
+        turn_accel = direction_error * max_accel * 6.0
+        thrust_accel = desired_direction * max_accel * (1.1 if self.status == MissileStatus.BOOSTING else 0.65)
+        commanded_accel = turn_accel + thrust_accel
+        accel_norm = np.linalg.norm(commanded_accel)
+        if accel_norm > max_accel * 1.5:
+            commanded_accel = commanded_accel / accel_norm * max_accel * 1.5
+        self.acceleration = commanded_accel
     
     def _update_physics(self, time_step: float):
         """Update missile position and velocity."""
@@ -241,6 +265,14 @@ class Missile:
         
         if speed > max_speed:
             self.velocity = self.velocity / speed * max_speed
+            speed = max_speed
+
+        if self.target_position is not None:
+            minimum_speed = self.params.max_speed * (0.35 if self.status == MissileStatus.BOOSTING else 0.6)
+            if speed < minimum_speed:
+                direction = self.desired_direction if np.linalg.norm(self.desired_direction) > 0 else normalize(self.velocity)
+                self.velocity = direction * minimum_speed
+                speed = minimum_speed
         
         # Update position
         self.position += self.velocity * time_step
@@ -307,7 +339,7 @@ class Missile:
 # Legacy compatibility classes
 class Projectile(Missile):
     """Legacy compatibility class."""
-    def __init__(self, position=None, target=None, id=None, trigger_distance=10.0, 
+    def __init__(self, position=None, target=None, id=None, trigger_distance=500.0,
                  explosion_range=100.0, max_velocity=1000.0, **kwargs):
         params = MissileParameters(
             max_speed=max_velocity,

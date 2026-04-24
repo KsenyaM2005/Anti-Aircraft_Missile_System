@@ -132,7 +132,7 @@ class Launcher:
         # Default missile parameters
         self.default_missile_speed: float = 1000.0  # Legacy compatibility
         self.speed: float = 1000.0  # Legacy compatibility
-        self.trigger_distance: float = 10.0
+        self.trigger_distance: float = 500.0
         self.explosion_range: float = 100.0
         
         # Statistics
@@ -410,6 +410,8 @@ class Launcher:
         # Add to environment
         environment.missiles[missile_id] = missile
         environment.projectiles[missile_id] = missile  # Legacy
+        if hasattr(environment, "total_missiles_launched"):
+            environment.total_missiles_launched += 1
         
         self.total_launches += 1
         self.successful_launches += 1

@@ -16,7 +16,7 @@ from simulation_clock import SimulationClock
 from event_types import EventBus, SimulationEvent, EventType
 from dispatcher import SimulationDispatcher
 from air_environment import AirEnvironment
-from radar import RadarSystem, Transmitter, Receiver
+from radar import Radar
 from pbu import Pbu
 from launcher import Launcher
 from target import TargetStatus
@@ -48,7 +48,7 @@ class AirDefenseSimulator:
         self.dispatcher: SimulationDispatcher = None
         
         # Subsystems
-        self.radars: list[RadarSystem] = []
+        self.radars: list[Radar] = []
         self.launchers: dict[int, Launcher] = {}
         
         # Visualization
@@ -112,38 +112,15 @@ class AirDefenseSimulator:
         self.launchers = self.pbu.launchers
         
         # 4. Initialize Radars
-        self.radars = []
         locator_config = self.config.get("Locator", {})
         for radar_id_str, radar_cfg in locator_config.items():
-            radar = RadarSystem(
+            radar = Radar(
                 radar_id=int(radar_id_str),
-                position=np.array(radar_cfg.get("position", [0, 0, 0])),
-                dt=time_step
+                event_bus=self.event_bus
             )
-
-            # Настройка параметров из конфига
-            if "transmitter" in radar_cfg:
-                tx = radar_cfg["transmitter"]
-                radar.transmitter = Transmitter(
-                    power_w=tx.get("power_w", 10000.0),
-                    gain_db=tx.get("gain_db", 40.0),
-                    frequency_hz=tx.get("frequency_hz", 3e9),
-                    bandwidth_hz=tx.get("bandwidth_hz", 1e6)
-                )
-
-            if "receiver" in radar_cfg:
-                rx = radar_cfg["receiver"]
-                radar.receiver = Receiver(
-                    noise_temp_k=rx.get("noise_temp_k", 290.0),
-                    losses_db=rx.get("losses_db", 3.0),
-                    azimuth_beamwidth_rad=rx.get("azimuth_beamwidth_rad", 0.0175),
-                    elevation_beamwidth_rad=rx.get("elevation_beamwidth_rad", 0.0175)
-                )
-
-            radar.r_max = radar_cfg.get("r_max", 2000.0)
-            radar.dr = radar_cfg.get("dr", 10.0)
-
+            radar.initialize_with_file_data(radar_cfg)
             self.radars.append(radar)
+        print(f"[OK] {len(self.radars)} Radars initialized")
         
         # 5. Register components with dispatcher
         self.dispatcher = SimulationDispatcher(

@@ -2,17 +2,13 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-import numpy as np
-
 from air_environment import AirEnvironment
 from event_types import EventBus, EventType, SimulationEvent
 from gui import GUI
 from logs import dispatcher_logger as logger
 from pbu import Pbu
-from radar import RadarSystem
+from radar import Radar
 from simulation_clock import SimulationClock
-from target import TargetStatus
-
 
 class SimulationDispatcher:
     """
@@ -30,7 +26,7 @@ class SimulationDispatcher:
         event_bus: EventBus,
         environment: AirEnvironment,
         pbu: Pbu,
-        radars: List[RadarSystem],
+        radars: List[Radar],
         gui: Optional[GUI] = None
     ):
         self.clock = clock
@@ -104,20 +100,9 @@ class SimulationDispatcher:
         self.clock.register_component("Environment", self.environment.update, 10)
 
         for index, radar in enumerate(self.radars):
-            # Создаём замыкание для каждого радара
-            def make_update(radar_instance):
-                def update(dt):
-                    radar_instance.dt = dt
-                    radar_instance.update_scan()
-                    # Здесь нужно реализовать логику обнаружения целей
-                    # через environment.get_noisy_measurement
-                    self._update_radar(radar_instance, dt)
-
-                return update
-
             self.clock.register_component(
                 name=f"Radar_{radar.id}",
-                update_func=make_update(radar),
+                update_func=lambda dt, r=radar: r.update(dt, self.environment),
                 priority=20 + index
             )
 
@@ -133,35 +118,6 @@ class SimulationDispatcher:
         self._registered = True
         logger.info("Dispatcher: default architecture components registered")
 
-    def _update_radar(self, radar: RadarSystem, dt: float) -> None:
-        """Обновление одного радара."""
-        radar.dt = dt
-        radar.update_scan()
-
-        az, el = radar.get_beam_direction()
-
-        # Сканирование по дальности
-        for r in np.arange(0, radar.r_max, radar.dr):
-            beam_pos = radar.get_beam_position(r)
-
-            for target_id, target in self.environment.targets.items():
-                if target.status != TargetStatus.ACTIVE:
-                    continue
-
-                if radar.is_target_in_beam(target.position, r):
-                    measurement = self.environment.get_noisy_measurement(target_id, radar.position)
-                    if measurement is not None:
-                        track_id = radar.process_measurement(measurement)
-                        if track_id is not None:
-                            # Отправка данных в PBU
-                            for track_data in radar.get_track_data():
-                                if track_data["track_id"] == track_id:
-                                    self.pbu.process_radar_track(radar.id, track_data)
-                                    break
-                        break
-
-        radar.update_tracks()
-
     def update_gui_cache(self) -> None:
         """Push the latest state snapshot into the GUI cache."""
         if self.gui is None:
@@ -172,6 +128,7 @@ class SimulationDispatcher:
             missiles=self.environment.missiles,
             radars=self.radars,
             launchers=self.pbu.launchers,
+            track_estimates=self.pbu.targets,
             defended_assets=self.pbu.defended_assets,
             simulation_time=self.clock.current_time,
         )
