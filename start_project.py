@@ -105,6 +105,9 @@ class ADSSimulatorGUI:
         print("  F     - Follow Selected Target")
         print("  H     - Toggle HUD")
         print("  ESC   - Clear Selection")
+        print("  Left click   - Select radar / launcher / asset / target")
+        print("  Middle drag  - Pan view")
+        print("  Right panel  - Move selected object, save/load variants")
         print("=" * 60 + "\n")
 
         self.clock.start()

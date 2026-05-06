@@ -33,20 +33,30 @@ Environment:
   
   # Target definitions
   targets:
-    0: # Цель 1
+    0:
       trajectory_type: "uniform"
       trajectory_arguments:
-        position: [ 2000, 4000, 1000 ]
-        velocity: [ 50, 0, 0 ]
-      type: "CRUISE_MISSILE"
-      rcs: 0.8
-    1: # Цель 2
-      trajectory_type: "uniform"
-      trajectory_arguments:
-        position: [ 8000, 6000, 800 ]
-        velocity: [ -60, 0, 0 ]
+        position: [ 1200, 4300, 900 ]
+        velocity: [ 250, 40, 0 ]
       type: "FIGHTER"
-      rcs: 1.5
+      rcs: 2.0
+      rcs_fluctuation: 0.1
+
+    1:
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [ 9300, 2600, 1800 ]
+        velocity: [ -170, 160, -10 ]
+      type: "BOMBER"
+      rcs: 5.0
+
+    2:
+      trajectory_type: "uniform"
+      trajectory_arguments:
+        position: [ 700, 5000, 120 ]
+        velocity: [ 320, 0, 0 ]
+      type: "CRUISE_MISSILE"
+      rcs: 0.12
 
 Pbu:
   time_step: 0.02
@@ -71,7 +81,7 @@ Pbu:
       missile_amount: 8
       speed: 950
       missile_type: "guided missile"
-      trigger_distance: 100 #18.0
+      trigger_distance: 30 #18.0
       explosion_range: 120.0
       traverse_speed: 150.0
       elevation_speed: 70.0
@@ -82,7 +92,7 @@ Pbu:
       missile_amount: 8
       speed: 1100
       missile_type: "guided missile"
-      trigger_distance: 100 #18.0
+      trigger_distance: 30 #18.0
       explosion_range: 150.0
       traverse_speed: 150.0
       elevation_speed: 70.0
@@ -92,42 +102,58 @@ Pbu:
       missile_amount: 12
       speed: 1250
       missile_type: "preemptive missile"
-      trigger_distance: 100 #18.0
+      trigger_distance: 30 #18.0
       explosion_range: 150.0
       traverse_speed: 180.0
       elevation_speed: 80.0
 
 Locator:
-  1:  # РЛС-1 (левая)
-    role: "tracking"  # левая - сопровождение
+  1: # left
+    time_step: 0.02
     position:
       x: 1000
-      y: 5000
+      y: 4700
       z: 0
-    r_max: 8000
-    omega_az: 120
-    omega_el: 50
-    beam_width_az: 5.0
-    beam_width_el: 10.0
-    dr: 5.0
-    # ...
+    omega_az: 90
+    omega_el: 18
+    r_max: 7000
+    dr: 25
+    beam_width_az: 12.0
+    beam_width_el: 12.0
+    scan_sector_az: [ 0, 360 ]
+    scan_sector_el: [ 0, 90 ]
+    initial_azimuth: 180
+    initial_elevation: 6
+    receiver:
+      range_noise: 8.0
+      angle_noise: 0.35
+      doppler_noise: 1.0
+      detection_probability: 0.98
 
-  2:  # РЛС-2 (правая)
-    role: "tracking"  # левая - сопровождение
+  2: # right
+    time_step: 0.02
     position:
-      x: 9000
-      y: 5000
+      x: 8000
+      y: 5300
       z: 0
-    r_max: 8000
-    omega_az: 120
-    omega_el: 50
-    beam_width_az: 5.0
-    beam_width_el: 10.0
-    dr: 5.0
-    # ...
+    omega_az: 90
+    omega_el: 18
+    r_max: 7000
+    dr: 25
+    beam_width_az: 12.0
+    beam_width_el: 12.0
+    scan_sector_az: [ 0, 360 ]
+    scan_sector_el: [ 0, 90 ]
+    initial_azimuth: 175
+    initial_elevation: 10
+    receiver:
+      range_noise: 8.0
+      angle_noise: 0.35
+      doppler_noise: 1.0
+      detection_probability: 0.98
 
-  3:  # РЛС-3 (центр, на ПБУ)
-    role: "search"    # центральная - только обзор
+  3:  # центр, на ПБУ
+    time_step: 0.02
     position:
       x: 5000
       y: 5000
@@ -138,6 +164,15 @@ Locator:
     beam_width_az: 5.0
     beam_width_el: 10.0
     dr: 5.0
+    scan_sector_az: [ 0, 360 ]
+    scan_sector_el: [ 0, 90 ]
+    initial_azimuth: 175
+    initial_elevation: 10
+    receiver:
+      range_noise: 8.0
+      angle_noise: 0.35
+      doppler_noise: 1.0
+      detection_probability: 0.98
 
 # Scenario configuration (timed spawns)
 Scenario:
