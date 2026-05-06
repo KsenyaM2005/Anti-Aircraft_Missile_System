@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle
-from matplotlib.widgets import Button, Slider
+from matplotlib.widgets import Button, Slider, TextBox
 
 from event_types import EventBus, EventType, SimulationEvent
 from logs import gui_logger as logger
@@ -46,6 +46,7 @@ class RenderCache:
     trails: Dict[Any, deque] = field(default_factory=dict)
     events: List[SimulationEvent] = field(default_factory=list)
     simulation_time: float = 0.0
+    status_message: str = ""
     dirty: bool = True
 
 
@@ -113,6 +114,9 @@ class GUI:
         self.pan_start: Optional[Tuple[float, float]] = None
         self.selected_object_id: Optional[int] = None
         self.selected_object_type: Optional[str] = None
+        self.pause_callback: Optional[Callable[[], None]] = None
+        self._suspend_position_events = False
+        self.variant_name = "baseline"
         self.show_hud = True
         self.event_display_count = 4
         self.colors = {
@@ -170,21 +174,27 @@ class GUI:
         self.widgets = {}
         self.ax_xy = self.ax_xz = self.ax_3d = self.ax_hud = None
         if self.view_mode == ViewMode.SPLIT:
-            self.ax_xy = self.fig.add_axes([0.06, 0.12, 0.33, 0.72])
-            self.ax_xz = self.fig.add_axes([0.43, 0.12, 0.33, 0.72])
+            self.ax_xy = self.fig.add_axes([0.05, 0.18, 0.28, 0.62])
+            self.ax_xz = self.fig.add_axes([0.39, 0.18, 0.28, 0.62])
         elif self.view_mode == ViewMode.TOP_DOWN:
-            self.ax_xy = self.fig.add_axes([0.06, 0.12, 0.70, 0.72])
+            self.ax_xy = self.fig.add_axes([0.05, 0.18, 0.62, 0.62])
         elif self.view_mode == ViewMode.SIDE:
-            self.ax_xz = self.fig.add_axes([0.06, 0.12, 0.70, 0.72])
+            self.ax_xz = self.fig.add_axes([0.05, 0.18, 0.62, 0.62])
         else:
-            self.ax_3d = self.fig.add_axes([0.06, 0.12, 0.70, 0.72], projection="3d")
-        self.ax_hud = self.fig.add_axes([0.80, 0.20, 0.17, 0.62])
+            self.ax_3d = self.fig.add_axes([0.05, 0.18, 0.62, 0.62], projection="3d")
+        self.ax_hud = self.fig.add_axes([0.71, 0.50, 0.26, 0.30])
         self.ax_hud.set_facecolor(self.colors["hud_background"])
         self.ax_hud.patch.set_alpha(0.85)
         self.ax_hud.axis("off")
-        self.widgets["pause"] = Button(self.fig.add_axes([0.80, 0.87, 0.08, 0.04]), "Pause", color="#2a2a5e", hovercolor="#3a3a7e")
-        self.widgets["reset"] = Button(self.fig.add_axes([0.89, 0.87, 0.08, 0.04]), "Reset", color="#2a2a5e", hovercolor="#3a3a7e")
-        self.widgets["zoom"] = Slider(self.fig.add_axes([0.81, 0.81, 0.15, 0.03]), "Zoom", 0.1, 5.0, valinit=1.0, color="#4169E1")
+        self.widgets["pause"] = Button(self.fig.add_axes([0.71, 0.88, 0.12, 0.04]), "Pause", color="#2a2a5e", hovercolor="#3a3a7e")
+        self.widgets["reset"] = Button(self.fig.add_axes([0.85, 0.88, 0.12, 0.04]), "Reset", color="#2a2a5e", hovercolor="#3a3a7e")
+        self.widgets["zoom"] = Slider(self.fig.add_axes([0.73, 0.83, 0.22, 0.03]), "Zoom", 0.1, 5.0, valinit=self.camera.zoom, color="#4169E1")
+        self.widgets["variant_name"] = TextBox(self.fig.add_axes([0.73, 0.43, 0.22, 0.04]), "Variant", initial=self.variant_name, color="#0f1037", hovercolor="#181b4e")
+        self.widgets["save_variant"] = Button(self.fig.add_axes([0.73, 0.37, 0.10, 0.04]), "Save", color="#2a2a5e", hovercolor="#3a3a7e")
+        self.widgets["load_variant"] = Button(self.fig.add_axes([0.85, 0.37, 0.10, 0.04]), "Load", color="#2a2a5e", hovercolor="#3a3a7e")
+        self.widgets["pos_x"] = Slider(self.fig.add_axes([0.73, 0.29, 0.22, 0.03]), "X", 0.0, 12000.0, valinit=0.0, color="#FF8C00")
+        self.widgets["pos_y"] = Slider(self.fig.add_axes([0.73, 0.24, 0.22, 0.03]), "Y", 0.0, 12000.0, valinit=0.0, color="#FF8C00")
+        self.widgets["pos_z"] = Slider(self.fig.add_axes([0.73, 0.19, 0.22, 0.03]), "Z", 0.0, 6000.0, valinit=0.0, color="#FF8C00")
         self._connect_handlers()
 
     def _connect_handlers(self) -> None:
@@ -199,8 +209,16 @@ class GUI:
             self.fig.canvas.mpl_connect("scroll_event", self._on_scroll),
             self.fig.canvas.mpl_connect("key_press_event", self._on_key_press),
         ]
+        if self.pause_callback is not None:
+            self.widgets["pause"].on_clicked(lambda _e: self.pause_callback())
         self.widgets["reset"].on_clicked(lambda _e: self.camera.reset())
         self.widgets["zoom"].on_changed(self._on_zoom_changed)
+        self.widgets["variant_name"].on_submit(self._on_variant_name_changed)
+        self.widgets["save_variant"].on_clicked(lambda _e: self._save_variant())
+        self.widgets["load_variant"].on_clicked(lambda _e: self._load_variant())
+        self.widgets["pos_x"].on_changed(lambda value: self._on_position_slider_changed("x", value))
+        self.widgets["pos_y"].on_changed(lambda value: self._on_position_slider_changed("y", value))
+        self.widgets["pos_z"].on_changed(lambda value: self._on_position_slider_changed("z", value))
 
     def _on_mouse_press(self, event) -> None:
         if event.inaxes not in [self.ax_xy, self.ax_xz]:
@@ -260,9 +278,78 @@ class GUI:
         self.camera.zoom = float(value)
         self.camera._update_bounds()
 
+    def _on_variant_name_changed(self, value: str) -> None:
+        self.variant_name = value.strip() or "baseline"
+
+    def _emit_operator_command(self, command: str, **payload: Any) -> None:
+        self.event_bus.publish(
+            SimulationEvent(
+                event_type=EventType.OPERATOR_COMMAND,
+                source_id="gui",
+                data={"command": command, **payload},
+            )
+        )
+
+    def _save_variant(self) -> None:
+        self._emit_operator_command("save_variant", name=self.variant_name)
+
+    def _load_variant(self) -> None:
+        self._emit_operator_command("load_variant", name=self.variant_name)
+
+    def _selected_position(self) -> Optional[np.ndarray]:
+        if self.selected_object_type == "radar":
+            radar = self.cache.radars.get(self.selected_object_id)
+            return None if radar is None else np.array(radar["position"], dtype=np.float64)
+        if self.selected_object_type == "launcher":
+            launcher = self.cache.launchers.get(self.selected_object_id)
+            return None if launcher is None else np.array(launcher["position"], dtype=np.float64)
+        if self.selected_object_type == "asset":
+            if self.selected_object_id is None or self.selected_object_id >= len(self.cache.defended_assets):
+                return None
+            return np.array(self.cache.defended_assets[self.selected_object_id], dtype=np.float64)
+        return None
+
+    def _refresh_selection_controls(self) -> None:
+        if not {"pos_x", "pos_y", "pos_z"}.issubset(self.widgets):
+            return
+        position = self._selected_position()
+        if position is None:
+            return
+        self._suspend_position_events = True
+        self.widgets["pos_x"].set_val(float(position[0]))
+        self.widgets["pos_y"].set_val(float(position[1]))
+        self.widgets["pos_z"].set_val(float(position[2]))
+        self._suspend_position_events = False
+
+    def _on_position_slider_changed(self, axis: str, value: float) -> None:
+        if self._suspend_position_events:
+            return
+        position = self._selected_position()
+        if position is None or self.selected_object_id is None or self.selected_object_type is None:
+            return
+        axis_index = {"x": 0, "y": 1, "z": 2}[axis]
+        position[axis_index] = float(value)
+        self._emit_operator_command(
+            "update_component_position",
+            component_type=self.selected_object_type,
+            component_id=self.selected_object_id,
+            position=position.tolist(),
+        )
+
     def _select_object_at(self, x: float, y: float, ax: plt.Axes) -> None:
         min_dist = 50 / self.camera.zoom
         selected = None
+        for radar_id, data in self.cache.radars.items():
+            pos = data["position"]
+            dist = np.sqrt((pos[0] - x) ** 2 + ((pos[1] if ax == self.ax_xy else pos[2]) - y) ** 2)
+            if dist < min_dist:
+                min_dist = dist
+                selected = ("radar", radar_id)
+        for asset_id, pos in enumerate(self.cache.defended_assets):
+            dist = np.sqrt((pos[0] - x) ** 2 + ((pos[1] if ax == self.ax_xy else pos[2]) - y) ** 2)
+            if dist < min_dist:
+                min_dist = dist
+                selected = ("asset", asset_id)
         for target_id, data in self.cache.targets.items():
             pos = data["position"]
             dist = np.sqrt((pos[0] - x) ** 2 + ((pos[1] if ax == self.ax_xy else pos[2]) - y) ** 2)
@@ -277,6 +364,7 @@ class GUI:
                 selected = ("launcher", launcher_id)
         if selected is not None:
             self.selected_object_type, self.selected_object_id = selected
+            self._refresh_selection_controls()
 
     def update_cache(
         self,
@@ -319,6 +407,8 @@ class GUI:
                 "engagement_status": getattr(getattr(track, "engagement_status", None), "name", "UNENGAGED"),
                 "assigned_launcher_id": getattr(track, "assigned_launcher_id", None),
                 "radar_id": getattr(track, "radar_id", None),
+                "source_count": len(getattr(track, "source_tracks", {})),
+                "source_radars": sorted(getattr(track, "source_tracks", {}).keys()),
             }
         self.cache.defended_assets = [np.array(asset, dtype=np.float64) for asset in defended_assets]
         if simulation_time is not None:
@@ -331,6 +421,7 @@ class GUI:
             self.cache.trails.setdefault(f"missile_{missile_id}", deque(maxlen=30)).append(missile.position.copy())
         for trail_id in [key for key in self.cache.trails if isinstance(key, str) and key.startswith("missile_") and int(key.split("_", 1)[1]) not in missiles]:
             self.cache.trails.pop(trail_id, None)
+        self._refresh_selection_controls()
         self.cache.dirty = True
 
     def render(self) -> None:
@@ -340,14 +431,14 @@ class GUI:
             self.camera.follow_target(self.cache.targets[self.camera.follow_target_id]["position"])
         if self.ax_xy is not None:
             self.ax_xy.clear()
-            self._style_2d(self.ax_xy, "X (m)", "Y (m)", "Top-Down View")
+            self._style_2d(self.ax_xy, "X (m)", "Y (m)", "XY Plan View")
             self.ax_xy.set_xlim(*self.camera.xlim)
             self.ax_xy.set_ylim(*self.camera.ylim)
             self.ax_xy.set_aspect("equal")
             self._render_top_down(self.ax_xy)
         if self.ax_xz is not None:
             self.ax_xz.clear()
-            self._style_2d(self.ax_xz, "X (m)", "Z (m)", "Side View (Altitude)")
+            self._style_2d(self.ax_xz, "X (m)", "Z (m)", "XZ Altitude View")
             self.ax_xz.set_xlim(*self.camera.xlim)
             self.ax_xz.set_ylim(*self.camera.zlim)
             self.ax_xz.set_aspect("equal")
@@ -393,7 +484,8 @@ class GUI:
     def _render_top_down(self, ax: plt.Axes) -> None:
         for radar_id, radar in sorted(self.cache.radars.items()):
             pos = radar["position"]
-            ax.scatter(pos[0], pos[1], marker="s", s=100, color=self.colors["radar"])
+            selected = radar_id == self.selected_object_id and self.selected_object_type == "radar"
+            ax.scatter(pos[0], pos[1], marker="s", s=135 if selected else 100, color=self.colors["radar"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
             if self.layer_visibility[DisplayLayer.DETECTION_RANGES]:
                 ax.add_patch(Circle((pos[0], pos[1]), radar["r_max"], fill=False, edgecolor=self.colors["radar"], alpha=0.25, linestyle="--"))
             if radar["beam_polygon_xy"]:
@@ -406,11 +498,15 @@ class GUI:
                 ax.annotate(f"R{radar_id}", xy=(pos[0], pos[1]), xytext=(6, 6), textcoords="offset points", color=self.colors["text"], fontsize=8)
         for launcher_id, launcher in sorted(self.cache.launchers.items()):
             pos = launcher["position"]
-            ax.scatter(pos[0], pos[1], marker="^", s=120, color=self.colors["launcher"])
+            selected = launcher_id == self.selected_object_id and self.selected_object_type == "launcher"
+            ax.scatter(pos[0], pos[1], marker="^", s=145 if selected else 120, color=self.colors["launcher"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
             if self.layer_visibility[DisplayLayer.LABELS]:
                 ax.annotate(f"L{launcher_id}", xy=(pos[0], pos[1]), xytext=(6, 6), textcoords="offset points", color=self.colors["text"], fontsize=8)
-        for asset in self.cache.defended_assets:
-            ax.scatter(asset[0], asset[1], marker="*", s=220, color=self.colors["defended_asset"], edgecolors="black", linewidth=1)
+        for asset_id, asset in enumerate(self.cache.defended_assets):
+            selected = asset_id == self.selected_object_id and self.selected_object_type == "asset"
+            ax.scatter(asset[0], asset[1], marker="*", s=260 if selected else 220, color=self.colors["defended_asset"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
+            if self.layer_visibility[DisplayLayer.LABELS]:
+                ax.annotate(f"A{asset_id}", xy=(asset[0], asset[1]), xytext=(6, 6), textcoords="offset points", color=self.colors["defended_asset"], fontsize=8)
         for trail_id, trail in self.cache.trails.items():
             if len(trail) <= 1:
                 continue
@@ -443,7 +539,8 @@ class GUI:
     def _render_side(self, ax: plt.Axes) -> None:
         for radar_id, radar in sorted(self.cache.radars.items()):
             pos = radar["position"]
-            ax.scatter(pos[0], pos[2], marker="s", s=100, color=self.colors["radar"])
+            selected = radar_id == self.selected_object_id and self.selected_object_type == "radar"
+            ax.scatter(pos[0], pos[2], marker="s", s=135 if selected else 100, color=self.colors["radar"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
             if radar["beam_polygon_xz"]:
                 beam_xz = np.array(radar["beam_polygon_xz"], dtype=np.float64)
                 ax.fill(beam_xz[:, 0], beam_xz[:, 1], color=self.colors["radar"], alpha=0.10)
@@ -454,11 +551,13 @@ class GUI:
                 ax.annotate(f"R{radar_id}", xy=(pos[0], pos[2]), xytext=(6, 6), textcoords="offset points", color=self.colors["text"], fontsize=8)
         for launcher_id, launcher in sorted(self.cache.launchers.items()):
             pos = launcher["position"]
-            ax.scatter(pos[0], pos[2], marker="^", s=120, color=self.colors["launcher"])
+            selected = launcher_id == self.selected_object_id and self.selected_object_type == "launcher"
+            ax.scatter(pos[0], pos[2], marker="^", s=145 if selected else 120, color=self.colors["launcher"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
             if self.layer_visibility[DisplayLayer.LABELS]:
                 ax.annotate(f"L{launcher_id}", xy=(pos[0], pos[2]), xytext=(6, 6), textcoords="offset points", color=self.colors["text"], fontsize=8)
-        for asset in self.cache.defended_assets:
-            ax.scatter(asset[0], asset[2], marker="*", s=220, color=self.colors["defended_asset"], edgecolors="black", linewidth=1)
+        for asset_id, asset in enumerate(self.cache.defended_assets):
+            selected = asset_id == self.selected_object_id and self.selected_object_type == "asset"
+            ax.scatter(asset[0], asset[2], marker="*", s=260 if selected else 220, color=self.colors["defended_asset"], edgecolors="white" if selected else "black", linewidth=2 if selected else 1)
         for trail_id, trail in self.cache.trails.items():
             if len(trail) <= 1:
                 continue
@@ -509,6 +608,21 @@ class GUI:
             lines.extend(["", "RECENT EVENTS:"])
             for event in self._recent_events():
                 lines.append(f"  {self._format_event(event)}")
+        if self.selected_object_type is not None and self.selected_object_id is not None:
+            lines.extend([
+                "",
+                "SELECTION:",
+                f"  {self.selected_object_type.upper()} #{self.selected_object_id}",
+            ])
+            if self.selected_object_type == "target":
+                track = self.cache.tracks.get(self.selected_object_id)
+                if track is not None:
+                    lines.append(f"  SOURCES: {track.get('source_count', 0)}")
+                    source_radars = track.get("source_radars") or []
+                    if source_radars:
+                        lines.append(f"  RADARS: {','.join(f'R{rid}' for rid in source_radars)}")
+        if self.cache.status_message:
+            lines.extend(["", "STATUS:", f"  {self.cache.status_message}"])
         y = 0.98
         for line in lines:
             self.ax_hud.text(0.03, y, line, transform=self.ax_hud.transAxes, color=self.colors["text"], fontsize=8, verticalalignment="top", fontfamily="monospace")
@@ -542,7 +656,13 @@ class GUI:
         return f"{label}: {object_id}" if object_id else label
 
     def set_pause_callback(self, callback: Callable) -> None:
-        self.widgets["pause"].on_clicked(lambda _e: callback())
+        self.pause_callback = callback
+        if "pause" in self.widgets:
+            self.widgets["pause"].on_clicked(lambda _e: callback())
+
+    def set_status_message(self, message: str) -> None:
+        self.cache.status_message = message
+        self.cache.dirty = True
 
     def show(self) -> None:
         if self.fig is None:

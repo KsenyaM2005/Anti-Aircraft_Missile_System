@@ -29,6 +29,86 @@ class TrackStatus(Enum):
 
 
 @dataclass
+class ReceiverParameters:
+    """Radar receiver parameters responsible for measurement quality."""
+    range_noise: float = 10.0
+    angle_noise: float = 0.5
+    doppler_noise: float = 1.0
+    detection_probability: float = 0.95
+
+
+class RadarReceiver:
+    """Receiver model owned by the radar rather than the environment."""
+
+    def __init__(self, parameters: Optional[ReceiverParameters] = None):
+        self.parameters = parameters or ReceiverParameters()
+
+    def configure(self, config: Dict[str, Any]) -> None:
+        """Load receiver parameters from config."""
+        self.parameters = ReceiverParameters(
+            range_noise=float(config.get("range_noise", self.parameters.range_noise)),
+            angle_noise=float(config.get("angle_noise", self.parameters.angle_noise)),
+            doppler_noise=float(config.get("doppler_noise", self.parameters.doppler_noise)),
+            detection_probability=float(config.get("detection_probability", self.parameters.detection_probability)),
+        )
+
+    def get_state(self) -> Dict[str, float]:
+        """Export receiver settings for save/load variants."""
+        return {
+            "range_noise": self.parameters.range_noise,
+            "angle_noise": self.parameters.angle_noise,
+            "doppler_noise": self.parameters.doppler_noise,
+            "detection_probability": self.parameters.detection_probability,
+        }
+
+    def measure_target(
+        self,
+        target,
+        radar_position: np.ndarray,
+        atmosphere,
+        timestamp: float
+    ) -> Optional[Dict[str, Any]]:
+        """Create a noisy radar measurement from true target state."""
+        effective_pd = self.parameters.detection_probability * atmosphere.get_radar_attenuation()
+        if random.random() > effective_pd:
+            return None
+
+        relative = target.position - radar_position
+        distance = np.linalg.norm(relative)
+        if distance < 1.0:
+            noisy_pos = target.position.copy()
+        else:
+            azimuth = math.atan2(relative[1], relative[0])
+            elevation = math.asin(relative[2] / distance)
+            noise_factor = atmosphere.get_noise_factor()
+            noisy_distance = distance + random.gauss(0, self.parameters.range_noise * noise_factor)
+            noisy_azimuth = azimuth + math.radians(random.gauss(0, self.parameters.angle_noise * noise_factor))
+            noisy_elevation = elevation + math.radians(random.gauss(0, self.parameters.angle_noise * noise_factor))
+            noisy_pos = np.array([
+                radar_position[0] + noisy_distance * math.cos(noisy_elevation) * math.cos(noisy_azimuth),
+                radar_position[1] + noisy_distance * math.cos(noisy_elevation) * math.sin(noisy_azimuth),
+                radar_position[2] + noisy_distance * math.sin(noisy_elevation),
+            ])
+
+        noisy_rcs = max(
+            0.01,
+            target.signature.get_current_rcs()
+            * (1.0 + random.gauss(0, 0.15))
+            * atmosphere.get_radar_attenuation()
+        )
+
+        return {
+            "target_id": target.id,
+            "position": noisy_pos,
+            "true_position": target.position.copy(),
+            "rcs": noisy_rcs,
+            "velocity": target.velocity.copy(),
+            "target_type": target.target_type.name,
+            "timestamp": timestamp,
+        }
+
+
+@dataclass
 class RadarMeasurement:
     """Raw radar measurement."""
     timestamp: float
@@ -188,15 +268,7 @@ class Radar:
                  radar_id: Optional[int] = None,
                  position: Tuple[float, float, float] = (0, 0, 0),
                  config: Optional[Dict[str, Any]] = None,
-                 event_bus: Optional[EventBus] = None,
-                 role: str = "search"):
-
-        self.role = role  # "search" или "tracking"
-        if role == "search":
-            self.mode = RadarMode.SEARCH
-            self.never_change_mode = True  # Нельзя переключать
-        else:
-            self.mode = RadarMode.SEARCH  # Изначально поиск, но может смениться
+                 event_bus: Optional[EventBus] = None):
         
         self.id = radar_id if radar_id is not None else Radar._id_counter
         Radar._id_counter = max(Radar._id_counter, self.id + 1)
@@ -205,12 +277,14 @@ class Radar:
         
         # Radar parameters
         self.time_step: float = 0.005
-        self.omega_az = 120.0  # град/сек
-        self.omega_el = 30.0  # град/сек
+        self.omega_az: float = 15.0  # deg/s
+        self.omega_el: float = 8.0   # deg/s
         self.r_max: float = 2000.0   # Maximum range (m)
         self.dr: float = 10.0        # Range resolution (m)
         self.beam_width_az: float = 2.0  # degrees
         self.beam_width_el: float = 2.0  # degrees
+        self.receiver = RadarReceiver()
+        self.elevation_bar_step: Optional[float] = None
         
         # Current scan state
         self.mode: RadarMode = RadarMode.SEARCH
@@ -219,7 +293,6 @@ class Radar:
         self.scan_azimuth_sector: Tuple[float, float] = (0, 360)
         self.scan_elevation_sector: Tuple[float, float] = (0, 90)
         self.current_range_window: Tuple[float, float] = (0.0, self.r_max)
-        self._az_scan_direction: float = 1.0
         self._following_track_id: Optional[int] = None
         
         # Tracks
@@ -261,11 +334,6 @@ class Radar:
         
         logger.info(f"Radar {self.id} initialized at {self.position}")
 
-    def set_mode(self, mode):
-        if getattr(self, 'never_change_mode', False):
-            return  # Центральная РЛС не меняет режим
-        self.mode = mode
-
     def _setup_event_handlers(self) -> None:
         """Subscribe to PBU-issued radar control commands."""
         self.event_bus.subscribe(
@@ -305,17 +373,23 @@ class Radar:
         self.dr = config.get("dr", self.dr)
         self.beam_width_az = config.get("beam_width_az", self.beam_width_az)
         self.beam_width_el = config.get("beam_width_el", self.beam_width_el)
+        self.elevation_bar_step = config.get("elevation_bar_step", self.elevation_bar_step)
         self.current_range_window = (0.0, self.r_max)
+        receiver_cfg = config.get("receiver") or config.get("radar_noise") or {}
+        if receiver_cfg:
+            self.receiver.configure(receiver_cfg)
         
         coords = config.get("position") or config.get("coordinates")
         if coords is not None:
             self.position = np.array([coords["x"], coords["y"], coords["z"]])
 
         if "scan_sector_az" in config:
-            self.scan_azimuth_sector = tuple(config["scan_sector_az"])
+            self.scan_azimuth_sector = self._normalize_sector_azimuth(tuple(config["scan_sector_az"]))
         if "scan_sector_el" in config:
             self.scan_elevation_sector = tuple(config["scan_sector_el"])
-        self.current_azimuth = config.get("initial_azimuth", self.scan_azimuth_sector[0]) % 360
+        self.current_azimuth = self._normalize_azimuth(
+            config.get("initial_azimuth", self.scan_azimuth_sector[0])
+        )
         self.current_elevation = float(config.get("initial_elevation", self.scan_elevation_sector[0]))
         self._update_beam_geometry()
     
@@ -348,7 +422,7 @@ class Radar:
         # Clean up old tracks
         self._cleanup_tracks()
         self._publish_track_updates()
-
+    
     def _perform_search_scan(self, environment) -> None:
         """Perform search scan pattern."""
         self._advance_search_pattern()
@@ -356,7 +430,7 @@ class Radar:
         self._update_beam_geometry()
 
         targets = environment.get_targets()
-
+        
         for target_id, target in targets.items():
             if target.status != TargetStatus.ACTIVE:
                 continue
@@ -364,7 +438,12 @@ class Radar:
             if not self._is_target_in_beam(target.position):
                 continue
 
-            measurement = environment.get_noisy_measurement(target_id, self.position)
+            measurement = self.receiver.measure_target(
+                target=target,
+                radar_position=self.position,
+                atmosphere=environment.atmosphere,
+                timestamp=environment.scenario_time,
+            )
             if measurement is None:
                 continue
 
@@ -401,7 +480,12 @@ class Radar:
                 self._mark_track_missed(track)
                 continue
 
-            measurement = environment.get_noisy_measurement(track.target_id, self.position)
+            measurement = self.receiver.measure_target(
+                target=target,
+                radar_position=self.position,
+                atmosphere=environment.atmosphere,
+                timestamp=environment.scenario_time,
+            )
             if measurement is None:
                 self._mark_track_missed(track)
                 continue
@@ -594,18 +678,18 @@ class Radar:
         z = self.position[2] + r * math.sin(el_rad)
         
         return x, y, z
-
+    
     def _is_target_in_beam(self, target_pos: np.ndarray, r: Optional[float] = None) -> bool:
         """Check if target is within radar beam."""
         relative = target_pos - self.position
         rel_r = np.linalg.norm(relative)
-
+        
         if rel_r < 1.0 or rel_r > self.r_max:
             return False
-
+        
         target_az = math.degrees(math.atan2(relative[1], relative[0])) % 360
         target_el = math.degrees(math.asin(relative[2] / rel_r))
-
+        
         az_diff = abs((target_az - self.current_azimuth + 180) % 360 - 180)
         el_diff = abs(target_el - self.current_elevation)
 
@@ -625,14 +709,14 @@ class Radar:
         relative = pos - self.position
         r = np.linalg.norm(relative)
         
-        if r > self.r_max:
+        if r < 1.0 or r > self.r_max:
             return False
         
         az = math.degrees(math.atan2(relative[1], relative[0])) % 360
         el = math.degrees(math.asin(relative[2] / r))
         
         return (
-            self.scan_azimuth_sector[0] <= az <= self.scan_azimuth_sector[1] and
+            self._is_azimuth_in_sector(az) and
             self.scan_elevation_sector[0] <= el <= self.scan_elevation_sector[1]
         )
     
@@ -699,16 +783,19 @@ class Radar:
         
         return tracks_data
     
-    # def set_mode(self, mode: RadarMode) -> None:
-    #     """Set radar operating mode."""
-    #     self.mode = mode
-    #     logger.info(f"Radar {self.id}: Mode set to {mode.name}")
+    def set_mode(self, mode: RadarMode) -> None:
+        """Set radar operating mode."""
+        self.mode = mode
+        logger.info(f"Radar {self.id}: Mode set to {mode.name}")
     
     def set_scan_sector(self, azimuth: Tuple[float, float], 
                         elevation: Tuple[float, float]) -> None:
         """Set scan sector."""
-        self.scan_azimuth_sector = azimuth
+        self.scan_azimuth_sector = self._normalize_sector_azimuth(azimuth)
         self.scan_elevation_sector = elevation
+        self.current_azimuth = self.scan_azimuth_sector[0]
+        self.current_elevation = self.scan_elevation_sector[0]
+        self._update_beam_geometry()
         logger.info(f"Radar {self.id}: Scan sector set to az={azimuth}, el={elevation}")
     
     def assign_track_for_following(self, track_id: int) -> None:
@@ -735,40 +822,58 @@ class Radar:
             }
         }
 
-    def _advance_search_pattern(self):
-        az_start, az_end = self.scan_azimuth_sector
-        el_start, el_end = self.scan_elevation_sector
+    def set_position(self, position: np.ndarray) -> None:
+        """Relocate the radar while preserving the current scan settings."""
+        self.position = np.array(position, dtype=np.float64)
+        self._update_beam_geometry()
 
-        # Сохраняем старый азимут для проверки пересечения границы
-        old_azimuth = self.current_azimuth
+    def get_configuration_snapshot(self) -> Dict[str, Any]:
+        """Export GUI-editable radar settings for variant save/load."""
+        return {
+            "id": self.id,
+            "position": self.position.tolist(),
+            "scan_sector_az": list(self.scan_azimuth_sector),
+            "scan_sector_el": list(self.scan_elevation_sector),
+            "current_azimuth": self.current_azimuth,
+            "current_elevation": self.current_elevation,
+            "receiver": self.receiver.get_state(),
+        }
 
-        # Движение по азимуту
-        self.current_azimuth += self.omega_az * self.time_step * self._az_scan_direction
+    def apply_configuration_snapshot(self, snapshot: Dict[str, Any]) -> None:
+        """Apply a saved configuration snapshot."""
+        if "position" in snapshot:
+            self.set_position(snapshot["position"])
+        if "scan_sector_az" in snapshot:
+            self.scan_azimuth_sector = self._normalize_sector_azimuth(tuple(snapshot["scan_sector_az"]))
+        if "scan_sector_el" in snapshot:
+            self.scan_elevation_sector = tuple(snapshot["scan_sector_el"])
+        if "current_azimuth" in snapshot:
+            self.current_azimuth = self._normalize_azimuth(snapshot["current_azimuth"])
+        if "current_elevation" in snapshot:
+            self.current_elevation = float(snapshot["current_elevation"])
+        if "receiver" in snapshot:
+            self.receiver.configure(snapshot["receiver"])
+        self._update_beam_geometry()
 
-        # ПРОВЕРКА: пересекли ли границу азимута?
-        crossed_boundary = False
+    def _advance_search_pattern(self) -> None:
+        """Sweep clockwise within the configured sector and step elevation per completed bar."""
+        az_start, _az_end = self.scan_azimuth_sector
+        az_span = self._azimuth_sector_span()
+        az_step = self.omega_az * self.time_step
 
-        if self.current_azimuth > az_end:
-            self.current_azimuth = az_end
-            self._az_scan_direction = -1.0
-            crossed_boundary = True
+        if az_span >= 359.999:
+            self.current_azimuth = self._normalize_azimuth(self.current_azimuth + az_step)
+            if self.current_azimuth < az_start:
+                self._step_elevation_bar()
+            return
 
-        elif self.current_azimuth < az_start:
-            self.current_azimuth = az_start
-            self._az_scan_direction = 1.0
-            crossed_boundary = True
-
-        # ЕСЛИ пересекли границу - увеличиваем угол места!
-        if crossed_boundary:
-            self.current_elevation += self.omega_el * self.time_step
-            #self.current_elevation += 0.5*self.beam_width_el
-            print(
-                f"Radar {self.id}: boundary crossed! elevation += {self.omega_el * self.time_step:.2f} -> {self.current_elevation:.1f}°")
-
-        # Сброс угла места при достижении максимума
-        if self.current_elevation >= el_end:
-            self.current_elevation = el_start
-            print(f"Radar {self.id}: elevation reset to {self.current_elevation:.1f}°")
+        progress = (self.current_azimuth - az_start) % 360
+        next_progress = progress + az_step
+        completed_bars = int(next_progress // az_span)
+        wrapped_progress = next_progress % az_span
+        self.current_azimuth = self._normalize_azimuth(az_start + wrapped_progress)
+        for _ in range(completed_bars):
+            self._step_elevation_bar()
 
     def _point_beam_at_position(
         self,
@@ -807,6 +912,38 @@ class Radar:
 
         confirmed_tracks = sorted(self.get_tracks().keys())
         return confirmed_tracks[:1]
+
+    def _normalize_azimuth(self, azimuth: float) -> float:
+        """Normalize an azimuth to [0, 360)."""
+        return float(azimuth % 360)
+
+    def _normalize_sector_azimuth(self, sector: Tuple[float, float]) -> Tuple[float, float]:
+        """Normalize sector edges while preserving wrap-around intent."""
+        return self._normalize_azimuth(sector[0]), self._normalize_azimuth(sector[1])
+
+    def _azimuth_sector_span(self) -> float:
+        """Get clockwise span of the scan azimuth sector."""
+        az_start, az_end = self.scan_azimuth_sector
+        span = (az_end - az_start) % 360
+        return 360.0 if math.isclose(span, 0.0, abs_tol=1e-6) else span
+
+    def _is_azimuth_in_sector(self, azimuth: float) -> bool:
+        """Check whether azimuth belongs to the configured clockwise sector."""
+        azimuth = self._normalize_azimuth(azimuth)
+        az_start = self.scan_azimuth_sector[0]
+        span = self._azimuth_sector_span()
+        if span >= 359.999:
+            return True
+        progress = (azimuth - az_start) % 360
+        return progress <= span
+
+    def _step_elevation_bar(self) -> None:
+        """Move to the next elevation bar after a completed clockwise sweep."""
+        el_start, el_end = self.scan_elevation_sector
+        step = self.elevation_bar_step if self.elevation_bar_step is not None else max(self.beam_width_el * 0.7, 1.0)
+        self.current_elevation += step
+        if self.current_elevation > el_end:
+            self.current_elevation = el_start
 
     def _update_beam_geometry(self) -> None:
         """Build beam sector polygons for GUI rendering."""

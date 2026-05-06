@@ -4,7 +4,7 @@ from typing import Dict, Optional, Any, Union, Tuple
 from dataclasses import dataclass, field
 from enum import Enum, auto
 
-from projectile import Missile, MissileParameters, GuidanceMode
+from projectile import Missile, MissileParameters, GuidanceMode, MissileStatus
 from logs import launcher_logger as logger
 from event_types import EventBus, SimulationEvent, EventType
 
@@ -132,7 +132,7 @@ class Launcher:
         # Default missile parameters
         self.default_missile_speed: float = 1000.0  # Legacy compatibility
         self.speed: float = 1000.0  # Legacy compatibility
-        self.trigger_distance: float = 500.0
+        self.trigger_distance: float = 10.0
         self.explosion_range: float = 100.0
         
         # Statistics
@@ -156,6 +156,14 @@ class Launcher:
         """Bind launcher to the shared air environment."""
         self.bound_environment = environment
         logger.info(f"Launcher {self.id}: environment binding updated")
+
+    def set_position(self, position: Union[list, tuple, np.ndarray]) -> None:
+        """Relocate the launcher and any still-stored missiles."""
+        self.position = np.array(position, dtype=np.float64)
+        for missile in self.magazine.missiles.values():
+            if missile.status == MissileStatus.STORED:
+                missile.position = self.position.copy()
+        self._report_status(force=True)
 
     def _handle_command_event(self, event: SimulationEvent) -> None:
         """Handle a command sent from the PBU or dispatcher."""
@@ -405,6 +413,7 @@ class Launcher:
         self.magazine.remove_missile(missile_id)
         
         # Launch the missile
+        missile.position = self.position.copy()
         missile.launch(current_time, self.assigned_target_position, self.assigned_target_id)
         
         # Add to environment

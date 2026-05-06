@@ -44,6 +44,7 @@ class TargetInfo:
     # Classification
     target_type: TargetType = TargetType.UNKNOWN
     estimated_rcs: float = 1.0
+    source_tracks: Dict[int, "RadarTrackSource"] = field(default_factory=dict)
     
     # Threat assessment
     threat_level: ThreatLevel = ThreatLevel.NONE
@@ -61,6 +62,20 @@ class TargetInfo:
     # History
     position_history: List[np.ndarray] = field(default_factory=list)
     max_history: int = 80
+    resolved_at: Optional[float] = None
+
+
+@dataclass
+class RadarTrackSource:
+    """A single radar's local estimate of a tracked target."""
+    radar_id: int
+    track_id: Optional[int] = None
+    position: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    velocity: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    estimated_rcs: float = 1.0
+    confidence: float = 0.5
+    target_type: TargetType = TargetType.UNKNOWN
+    last_update: float = 0.0
 
 
 @dataclass
@@ -439,6 +454,8 @@ class Pbu:
                 self.targets_destroyed += 1
             target_info.engagement_status = EngagementStatus.INTERCEPTED
             target_info.assigned_missile_id = None
+            target_info.resolved_at = self.current_time
+            target_info.source_tracks.clear()
         else:
             self.targets_destroyed += 1
         self.engagements.pop(target_id, None)
@@ -545,6 +562,57 @@ class Pbu:
         
         # Clean up old engagements
         self._cleanup_engagements()
+        self._cleanup_targets()
+
+    def _prune_source_tracks(self, target_info: TargetInfo, max_age: float = 3.0) -> None:
+        """Drop stale radar source tracks from the fused target picture."""
+        for radar_id, source in list(target_info.source_tracks.items()):
+            if self.current_time - source.last_update > max_age:
+                del target_info.source_tracks[radar_id]
+
+    def _fuse_target_sources(self, target_info: TargetInfo) -> None:
+        """Fuse multiple radar-local tracks into one PBU-level estimate."""
+        self._prune_source_tracks(target_info)
+        if not target_info.source_tracks:
+            return
+
+        weighted_positions = []
+        weighted_velocities = []
+        weighted_rcs = []
+        weights = []
+        primary_source = None
+        primary_weight = -1.0
+
+        for source in target_info.source_tracks.values():
+            age = max(0.0, self.current_time - source.last_update)
+            freshness = max(0.25, 1.0 - age / 5.0)
+            weight = max(0.1, source.confidence) * freshness
+            weighted_positions.append(source.position * weight)
+            weighted_velocities.append(source.velocity * weight)
+            weighted_rcs.append(source.estimated_rcs * weight)
+            weights.append(weight)
+            if weight > primary_weight:
+                primary_weight = weight
+                primary_source = source
+
+        total_weight = sum(weights)
+        if total_weight <= 0.0 or primary_source is None:
+            return
+
+        target_info.position = sum(weighted_positions) / total_weight
+        target_info.velocity = sum(weighted_velocities) / total_weight
+        target_info.estimated_rcs = float(sum(weighted_rcs) / total_weight)
+        target_info.last_update = max(source.last_update for source in target_info.source_tracks.values())
+        target_info.track_id = primary_source.track_id
+        target_info.radar_id = primary_source.radar_id
+        if primary_source.target_type != TargetType.UNKNOWN:
+            target_info.target_type = primary_source.target_type
+        target_info.resolved_at = None
+
+        if not target_info.position_history or dist(target_info.position_history[-1], target_info.position) > 1.0:
+            target_info.position_history.append(target_info.position.copy())
+            if len(target_info.position_history) > target_info.max_history:
+                target_info.position_history.pop(0)
     
     def process_radar_track(self, radar_id: int, track_data: Dict[str, Any]) -> None:
         """Process track data from a radar."""
@@ -558,57 +626,49 @@ class Pbu:
             self.targets[target_id] = TargetInfo(target_id=target_id)
         
         target_info = self.targets[target_id]
-        target_info.track_id = track_data.get("track_id")
-        target_info.radar_id = radar_id
-        target_info.position = np.array(track_data["position"])
-        target_info.velocity = np.array(track_data["velocity"])
-        target_info.estimated_rcs = track_data.get("estimated_rcs", 1.0)
+        if target_info.engagement_status == EngagementStatus.INTERCEPTED:
+            return
+
         target_type_name = str(track_data.get("target_type", target_info.target_type.name)).upper()
+        target_type = target_info.target_type
         if target_type_name in TargetType.__members__:
-            target_info.target_type = TargetType[target_type_name]
-        target_info.last_update = self.current_time
-        
-        # Update history
-        target_info.position_history.append(target_info.position.copy())
-        if len(target_info.position_history) > target_info.max_history:
-            target_info.position_history.pop(0)
+            target_type = TargetType[target_type_name]
+
+        target_info.source_tracks[radar_id] = RadarTrackSource(
+            radar_id=radar_id,
+            track_id=track_data.get("track_id"),
+            position=np.array(track_data["position"], dtype=np.float64),
+            velocity=np.array(track_data["velocity"], dtype=np.float64),
+            estimated_rcs=float(track_data.get("estimated_rcs", 1.0)),
+            confidence=float(track_data.get("confidence", 0.5)),
+            target_type=target_type,
+            last_update=self.current_time,
+        )
+        self._fuse_target_sources(target_info)
 
         self.event_bus.publish(SimulationEvent(
             event_type=EventType.TARGET_DETECTED,
             source_id=f"radar_{radar_id}",
             target_id=f"target_{target_id}",
             data={
-                "radar_id": radar_id,
+                "radar_id": target_info.radar_id,
                 "track_id": target_info.track_id,
                 "position": target_info.position.tolist(),
                 "velocity": target_info.velocity.tolist(),
-                "estimated_rcs": target_info.estimated_rcs
+                "estimated_rcs": target_info.estimated_rcs,
+                "source_count": len(target_info.source_tracks),
+                "source_radars": sorted(target_info.source_tracks.keys()),
             }
         ))
-
-    def _get_best_tracking_radar(self, target_position: np.ndarray) -> Optional[int]:
-        """Выбрать лучшую нецентральную РЛС для сопровождения цели."""
-        best_radar_id = None
-        best_distance = float('inf')
-
-        for radar_id, radar in self.radars.items():
-            # Пропускаем центральную РЛС (если есть роль "search")
-            if getattr(radar, 'role', 'tracking') == 'search':
-                continue
-
-            distance = dist(radar.position, target_position)
-            if distance < best_distance:
-                best_distance = distance
-                best_radar_id = radar_id
-
-        return best_radar_id
-
+    
     def _register_new_target(self, track_data: Dict[str, Any]) -> int:
         """Register a new target and assign an ID."""
         new_pos = np.array(track_data["position"])
         
         # Check if this matches an existing target
         for existing_id, existing_info in self.targets.items():
+            if existing_info.engagement_status == EngagementStatus.INTERCEPTED:
+                continue
             if dist(existing_info.position, new_pos) < self.add_distance:
                 # Might be the same target
                 logger.info(f"PBU: Target at {new_pos} matches existing target {existing_id}")
@@ -644,6 +704,8 @@ class Pbu:
     def _update_threat_assessments(self) -> None:
         """Update threat assessments for all targets."""
         for target_info in self.targets.values():
+            if target_info.engagement_status == EngagementStatus.INTERCEPTED:
+                continue
             # Skip if data is stale
             if self.current_time - target_info.last_update > 5.0:
                 continue
@@ -679,41 +741,40 @@ class Pbu:
             ))
 
     def _make_engagement_decisions(self) -> None:
-        """Make decisions about which targets to engage."""
         if self.current_time - self.last_engagement_time < self.min_engagement_interval:
             return
 
-        # Get unengaged targets sorted by priority
+        # Разрешаем повторный пуск по MISSED целям
         unengaged_targets = [
             (tid, info) for tid, info in self.targets.items()
-            if info.engagement_status == EngagementStatus.UNENGAGED
-            and info.threat_level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]
-            and self.current_time - info.last_update < 5.0
+            if info.engagement_status in [EngagementStatus.UNENGAGED, EngagementStatus.MISSED]
+               and info.threat_level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]
+               and self.current_time - info.last_update < 5.0
         ]
 
         unengaged_targets.sort(key=lambda x: x[1].priority, reverse=True)
 
         for target_id, target_info in unengaged_targets:
-            # Check if we have available launchers
             available_launchers = {
                 lid: l for lid, l in self.launchers.items()
                 if l.get_missile_count() > 0
-                and l.status in [LauncherStatus.IDLE, LauncherStatus.READY_TO_FIRE]
-                and l.assigned_target_id is None
+                   and l.status in [LauncherStatus.IDLE, LauncherStatus.READY_TO_FIRE]
+                   and l.assigned_target_id is None
             }
 
             if not available_launchers:
-                break
+                continue
 
-            # Plan engagement
             plan = self.engagement_planner.plan_engagement(target_info, available_launchers)
 
             if plan is not None:
                 self._execute_engagement(plan, target_info)
-                self.last_engagement_time = self.current_time
                 self.targets_engaged += 1
-                break
-    
+                # break  # или убрать break, если хотим несколько пусков за такт
+
+        self.last_engagement_time = self.current_time
+
+
     def _execute_engagement(self, plan: EngagementPlan, target_info: TargetInfo) -> None:
         """Execute an engagement plan."""
         launcher = self.launchers.get(plan.launcher_id)
@@ -730,15 +791,32 @@ class Pbu:
         # Store engagement plan
         self.engagements[plan.target_id] = plan
 
-        if target_info.radar_id is not None:
+        radar_sources = list(target_info.source_tracks.values())
+        if not radar_sources and target_info.radar_id is not None:
+            radar_sources = [
+                RadarTrackSource(
+                    radar_id=target_info.radar_id,
+                    track_id=target_info.track_id,
+                    position=target_info.position.copy(),
+                    velocity=target_info.velocity.copy(),
+                    estimated_rcs=target_info.estimated_rcs,
+                    confidence=1.0,
+                    target_type=target_info.target_type,
+                    last_update=target_info.last_update,
+                )
+            ]
+
+        for source in radar_sources:
+            if source.track_id is None:
+                continue
             self.event_bus.publish(SimulationEvent(
                 event_type=EventType.RADAR_CONTROL_COMMAND,
                 source_id="pbu",
-                target_id=f"radar_{target_info.radar_id}",
+                target_id=f"radar_{source.radar_id}",
                 data={
-                    "radar_id": target_info.radar_id,
+                    "radar_id": source.radar_id,
                     "mode": "MULTI_TRACK",
-                    "track_id": target_info.track_id,
+                    "track_id": source.track_id,
                     "target_id": plan.target_id
                 }
             ))
@@ -786,6 +864,7 @@ class Pbu:
                 "target_id": plan.target_id,
                 "launcher_id": plan.launcher_id,
                 "radar_id": target_info.radar_id,
+                "supporting_radars": sorted(target_info.source_tracks.keys()),
                 "missile_type": plan.missile_type
             }
         ))
@@ -857,12 +936,16 @@ class Pbu:
         """Update the overall situation picture."""
         active_targets = []
         for target_info in self.targets.values():
-            if self.current_time - target_info.last_update < 10.0:
+            if (
+                target_info.engagement_status != EngagementStatus.INTERCEPTED
+                and self.current_time - target_info.last_update < 10.0
+            ):
                 active_targets.append({
                     "id": target_info.target_id,
                     "position": target_info.position.tolist(),
                     "threat_level": target_info.threat_level.name,
-                    "status": target_info.engagement_status.name
+                    "status": target_info.engagement_status.name,
+                    "source_count": len(target_info.source_tracks),
                 })
         
         self.situation_picture = {
@@ -881,25 +964,53 @@ class Pbu:
             source_id="pbu",
             data=self.situation_picture.copy()
         ))
-    
+
     def _cleanup_engagements(self) -> None:
-        """Clean up completed or failed engagements."""
         to_remove = []
-        
+
         for target_id, plan in self.engagements.items():
             target_info = self.targets.get(target_id)
-            
-            # Remove if target is gone or engagement is old
+
             if target_info is None:
                 to_remove.append(target_id)
-            elif self.current_time - plan.command_time > max(30.0, plan.estimated_intercept_time + 5.0):
-                # Engagement probably missed
+            elif self.current_time - plan.command_time > max(10.0, plan.estimated_intercept_time + 5.0):
                 to_remove.append(target_id)
                 target_info.engagement_status = EngagementStatus.MISSED
                 logger.info(f"PBU: Engagement for target {target_id} timed out")
-        
+
+        # ДОБАВИТЬ: сброс MISSED через 10 секунд
+        for target_id, target_info in self.targets.items():
+            if target_info.engagement_status == EngagementStatus.MISSED:
+                if self.current_time - target_info.last_update > 10.0:
+                    target_info.engagement_status = EngagementStatus.UNENGAGED
+                    logger.info(f"PBU: Target {target_id} reset from MISSED to UNENGAGED")
+
         for target_id in to_remove:
             del self.engagements[target_id]
+
+    def _cleanup_targets(self) -> None:
+        """Remove finished or stale PBU tracks from the display/state picture."""
+        to_remove = []
+        for target_id, target_info in self.targets.items():
+            if (
+                target_info.engagement_status == EngagementStatus.INTERCEPTED
+                and target_info.resolved_at is not None
+                and self.current_time - target_info.resolved_at > 1.0
+            ):
+                to_remove.append(target_id)
+                continue
+
+            self._prune_source_tracks(target_info, max_age=5.0)
+
+            if (
+                not target_info.source_tracks
+                and target_info.engagement_status in {EngagementStatus.UNENGAGED, EngagementStatus.MISSED}
+                and self.current_time - target_info.last_update > 12.0
+            ):
+                to_remove.append(target_id)
+
+        for target_id in to_remove:
+            self.targets.pop(target_id, None)
     
     def add_launcher(self, **kwargs) -> bool:
         """Add a launcher to PBU control."""
@@ -1001,6 +1112,14 @@ class Pbu:
     def get_targets(self) -> Dict[int, TargetInfo]:
         """Get all tracked targets."""
         return self.targets
+
+    def get_display_targets(self) -> Dict[int, TargetInfo]:
+        """Get only the PBU-fused tracks that should remain visible in the GUI."""
+        return {
+            target_id: target_info
+            for target_id, target_info in self.targets.items()
+            if target_info.engagement_status != EngagementStatus.INTERCEPTED
+        }
     
     def get_situation_picture(self) -> Dict[str, Any]:
         """Get current situation picture for display."""

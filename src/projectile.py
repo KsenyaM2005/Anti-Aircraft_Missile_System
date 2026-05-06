@@ -168,22 +168,6 @@ class Missile:
         
         # Update telemetry
         self._update_telemetry()
-
-        # Если нет команды от ПБУ, но есть цель - наводимся сами
-        if guidance_command is None and self.target_position is not None and self.is_active():
-            # Просто поворачиваем к цели
-            direction_to_target = normalize(self.target_position - self.position)
-            # Плавный поворот
-            current_dir = normalize(self.velocity) if np.linalg.norm(self.velocity) > 0 else direction_to_target
-            self.desired_direction = direction_to_target
-            # Поворачиваем
-            turn_rate = 0.2  # коэффициент поворота
-            new_dir = current_dir * (1 - turn_rate) + direction_to_target * turn_rate
-            new_dir = normalize(new_dir)
-            # Меняем скорость
-            speed = np.linalg.norm(self.velocity)
-            if speed > 0:
-                self.velocity = new_dir * speed
     
     def _update_flight_phase(self):
         """Update missile flight phase based on time."""
@@ -339,7 +323,7 @@ class Missile:
 # Legacy compatibility classes
 class Projectile(Missile):
     """Legacy compatibility class."""
-    def __init__(self, position=None, target=None, id=None, trigger_distance=500.0,
+    def __init__(self, position=None, target=None, id=None, trigger_distance=10.0, 
                  explosion_range=100.0, max_velocity=1000.0, **kwargs):
         params = MissileParameters(
             max_speed=max_velocity,

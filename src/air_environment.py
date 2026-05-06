@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import random
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -57,68 +56,11 @@ class AtmosphericConditions:
         return 1.0
 
 
-class RadarNoiseModel:
-    """Model for radar measurement noise."""
-    
-    def __init__(self, 
-                 range_noise: float = 10.0,      # Range noise std (m)
-                 angle_noise: float = 0.5,       # Angle noise std (degrees)
-                 doppler_noise: float = 1.0,     # Doppler noise std (m/s)
-                 detection_probability: float = 0.95):
-        
-        self.range_noise = range_noise
-        self.angle_noise = math.radians(angle_noise)
-        self.doppler_noise = doppler_noise
-        self.detection_probability = detection_probability
-    
-    def apply_noise_to_position(self, true_position: np.ndarray, 
-                                radar_position: np.ndarray,
-                                atmosphere: AtmosphericConditions) -> Optional[np.ndarray]:
-        """
-        Apply realistic radar noise to a target position.
-        Returns None if target is not detected.
-        """
-        # Detection probability with atmospheric effects
-        effective_pd = self.detection_probability * atmosphere.get_radar_attenuation()
-        if random.random() > effective_pd:
-            return None
-        
-        # Convert to spherical coordinates relative to radar
-        relative = true_position - radar_position
-        r = np.linalg.norm(relative)
-        
-        if r < 1.0:
-            return true_position.copy()
-        
-        theta = math.atan2(relative[1], relative[0])  # Azimuth
-        phi = math.asin(relative[2] / r)  # Elevation
-        
-        # Add noise
-        noise_factor = atmosphere.get_noise_factor()
-        r_noisy = r + random.gauss(0, self.range_noise * noise_factor)
-        theta_noisy = theta + random.gauss(0, self.angle_noise * noise_factor)
-        phi_noisy = phi + random.gauss(0, self.angle_noise * noise_factor)
-        
-        # Convert back to Cartesian
-        x_noisy = radar_position[0] + r_noisy * math.cos(phi_noisy) * math.cos(theta_noisy)
-        y_noisy = radar_position[1] + r_noisy * math.cos(phi_noisy) * math.sin(theta_noisy)
-        z_noisy = radar_position[2] + r_noisy * math.sin(phi_noisy)
-        
-        return np.array([x_noisy, y_noisy, z_noisy])
-    
-    def apply_noise_to_rcs(self, true_rcs: float, atmosphere: AtmosphericConditions) -> float:
-        """Apply fluctuation to RCS measurement."""
-        fluctuation = 1.0 + random.gauss(0, 0.15)  # 15% fluctuation
-        attenuation = atmosphere.get_radar_attenuation()
-        return max(0.01, true_rcs * fluctuation * attenuation)
-
-
 class AirEnvironment:
     """
     Air Environment / Воздушная Среда.
     Manages all aerial objects (targets and missiles) and simulates:
     - Target trajectory generation
-    - Radar noise injection
     - Weather effects
     - Target destruction handling
     """
@@ -136,7 +78,6 @@ class AirEnvironment:
         
         # Environment conditions
         self.atmosphere = AtmosphericConditions()
-        self.radar_noise_model = RadarNoiseModel()
         
         # Simulation boundaries
         self.boundary_x: Tuple[float, float] = (0, 10000)
@@ -204,16 +145,6 @@ class AirEnvironment:
                 wind_speed=atm.get("wind_speed", 0.0),
                 wind_direction=atm.get("wind_direction", 0.0),
                 weather=WeatherCondition[atm.get("weather", "CLEAR").upper()]
-            )
-        
-        # Load noise model settings
-        if "radar_noise" in config:
-            noise = config["radar_noise"]
-            self.radar_noise_model = RadarNoiseModel(
-                range_noise=noise.get("range_noise", 10.0),
-                angle_noise=noise.get("angle_noise", 0.5),
-                doppler_noise=noise.get("doppler_noise", 1.0),
-                detection_probability=noise.get("detection_probability", 0.95)
             )
         
         # Load boundaries
@@ -494,35 +425,33 @@ class AirEnvironment:
             logger.error(f"Environment: adding projectile failed: {e}")
             return False
     
-    def get_noisy_measurement(self, target_id: int, radar_position: np.ndarray) -> Optional[Dict[str, Any]]:
+    def get_target_truth(self, target_id: int) -> Optional[Dict[str, Any]]:
         """
-        Get noisy radar measurement for a target.
+        Return the true target state for radar-owned measurement models.
         Simulates the "Зашумленные координаты" from the diagram.
         """
         target = self.targets.get(target_id)
         if target is None or target.status != TargetStatus.ACTIVE:
             return None
-        
-        noisy_pos = self.radar_noise_model.apply_noise_to_position(
-            target.position, radar_position, self.atmosphere
-        )
-        
-        if noisy_pos is None:
-            return None  # Not detected
-        
-        noisy_rcs = self.radar_noise_model.apply_noise_to_rcs(
-            target.signature.get_current_rcs(), self.atmosphere
-        )
-        
+
         return {
             "target_id": target_id,
-            "position": noisy_pos,
+            "position": target.position.copy(),
             "true_position": target.position.copy(),
-            "rcs": noisy_rcs,
+            "rcs": target.signature.get_current_rcs(),
             "velocity": target.velocity.copy(),
             "target_type": target.target_type.name,
             "timestamp": self.scenario_time
         }
+
+    def get_noisy_measurement(self, target_id: int, radar_position: np.ndarray) -> Optional[Dict[str, Any]]:
+        """
+        Legacy compatibility wrapper.
+        Measurement noise now belongs to the radar receiver, so the environment
+        only exposes true target state.
+        """
+        del radar_position
+        return self.get_target_truth(target_id)
     
     def check_exploded(self):
         """Check for exploded missiles and affected targets."""
