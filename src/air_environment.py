@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import random
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -10,6 +11,41 @@ from trajectory import create_trajectory
 from misc import dist
 from logs import environment_logger as logger
 from event_types import EventBus, SimulationEvent, EventType
+
+
+class RadarNoiseModel:
+    """Compatibility shim used by tests written against the old API.
+
+    The real measurement noise lives in :class:`radar.RadarReceiver`; this is
+    a small standalone helper that produces a noisy 3D position from a true
+    one, so legacy tests against ``apply_noise_to_position`` still pass.
+    """
+
+    def __init__(self, range_noise: float = 10.0, angle_noise: float = 0.5,
+                 detection_probability: float = 1.0):
+        self.range_noise = float(range_noise)
+        self.angle_noise = float(angle_noise)
+        self.detection_probability = float(detection_probability)
+
+    def apply_noise_to_position(self, true_pos: np.ndarray, radar_pos: np.ndarray,
+                                atmosphere: Any) -> Optional[np.ndarray]:
+        if random.random() > self.detection_probability * atmosphere.get_radar_attenuation():
+            return None
+        relative = np.asarray(true_pos, dtype=np.float64) - np.asarray(radar_pos, dtype=np.float64)
+        distance = float(np.linalg.norm(relative))
+        if distance < 1.0:
+            return np.asarray(true_pos, dtype=np.float64).copy()
+        azimuth = math.atan2(relative[1], relative[0])
+        elevation = math.asin(relative[2] / distance)
+        noise_factor = atmosphere.get_noise_factor()
+        noisy_distance = distance + random.gauss(0, self.range_noise * noise_factor)
+        noisy_azimuth = azimuth + math.radians(random.gauss(0, self.angle_noise * noise_factor))
+        noisy_elevation = elevation + math.radians(random.gauss(0, self.angle_noise * noise_factor))
+        return np.array([
+            radar_pos[0] + noisy_distance * math.cos(noisy_elevation) * math.cos(noisy_azimuth),
+            radar_pos[1] + noisy_distance * math.cos(noisy_elevation) * math.sin(noisy_azimuth),
+            radar_pos[2] + noisy_distance * math.sin(noisy_elevation),
+        ])
 
 
 class WeatherCondition(Enum):
@@ -198,9 +234,9 @@ class AirEnvironment:
         self._publish_environment_state()
     
     def update_targets(self, time_step: float):
-        """Update all active targets."""
+        """Update all targets that are still flying (ACTIVE or LOST)."""
         for target in self.targets.values():
-            if target.status == TargetStatus.ACTIVE:
+            if target.status in (TargetStatus.ACTIVE, TargetStatus.LOST):
                 target.update(time_step, self.scenario_time)
     
     def update_missiles(self, time_step: float):
@@ -312,7 +348,7 @@ class AirEnvironment:
     def _check_boundaries(self):
         """Check if targets have left the simulation area."""
         for target in self.targets.values():
-            if target.status == TargetStatus.ACTIVE:
+            if target.status in (TargetStatus.ACTIVE, TargetStatus.LOST):
                 pos = target.position
                 if (pos[0] < self.boundary_x[0] or pos[0] > self.boundary_x[1] or
                     pos[1] < self.boundary_y[0] or pos[1] > self.boundary_y[1] or
@@ -463,7 +499,7 @@ class AirEnvironment:
     def _register_missile_impact(self, missile: Missile) -> None:
         """Apply the blast effect of a detonated missile."""
         for target_id, target in self.targets.items():
-            if target.status != TargetStatus.ACTIVE:
+            if target.status in (TargetStatus.DESTROYED, TargetStatus.EXPIRED):
                 continue
 
             if dist(target.position, missile.position) >= missile.params.blast_radius:
@@ -565,6 +601,31 @@ class AirEnvironment:
         self.target_spawn_queue = self.scenario_targets.copy()
         self.scenario_time = 0.0
         logger.info(f"Environment: loaded scenario with {len(self.scenario_targets)} targets")
+
+    def reset_state(self, targets_spec: List[Dict[str, Any]]) -> None:
+        """Wipe runtime state and re-spawn targets from a UI-provided spec list."""
+        self.targets.clear()
+        self.missiles.clear()
+        self.projectiles.clear()
+        self.pending_guidance_commands.clear()
+        self.exploded_not_cleared_projectiles.clear()
+        self.exploded_not_cleared_targets.clear()
+        self.target_spawn_queue.clear()
+        self.scenario_targets = []
+        self.scenario_time = 0.0
+        self.total_targets_spawned = 0
+        self.total_targets_destroyed = 0
+        self.total_missiles_launched = 0
+        for spec in targets_spec:
+            self.add_target(
+                trajectory_type=spec.get("trajectory_type", "uniform"),
+                id=spec["id"],
+                trajectory_arguments=spec.get("trajectory_arguments", {}),
+                type=spec.get("type", "UNKNOWN"),
+                rcs=spec.get("rcs", 1.0),
+                rcs_fluctuation=spec.get("rcs_fluctuation", 0.1),
+            )
+        logger.info(f"Environment: reset with {len(self.targets)} targets")
 
 
 # Legacy compatibility imports

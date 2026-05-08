@@ -399,7 +399,8 @@ class Pbu:
         """Bind a launched missile to its assigned target."""
         data = event.data or {}
         missile_id = data.get("missile_id")
-        target_id = self._parse_target_id(data.get("target_id") or event.target_id)
+        raw_target_id = data["target_id"] if "target_id" in data else event.target_id
+        target_id = self._parse_target_id(raw_target_id)
         if missile_id is None or target_id is None:
             return
 
@@ -435,12 +436,24 @@ class Pbu:
         if target_info is None:
             return
 
-        if event.event_type == EventType.MISSILE_MISSED:
+        if event.event_type in (EventType.MISSILE_MISSED, EventType.MISSILE_DETONATED):
+            if target_info.engagement_status == EngagementStatus.INTERCEPTED:
+                return
             target_info.engagement_status = EngagementStatus.MISSED
             target_info.assigned_missile_id = None
+            if target_info.assigned_launcher_id is not None:
+                launcher = self.launchers.get(target_info.assigned_launcher_id)
+                if launcher is not None:
+                    launcher.assigned_target_id = None
+                    launcher.assigned_target_position = None
+            target_info.assigned_launcher_id = None
             if missile_id in self.missile_assignments:
                 del self.missile_assignments[missile_id]
             self.engagements.pop(target_id, None)
+            logger.info(
+                f"PBU: target {target_id} freed for re-engagement after "
+                f"{event.event_type.name}"
+            )
 
     def _handle_target_destroyed_event(self, event: SimulationEvent) -> None:
         """Close the engagement loop after a confirmed target kill."""
@@ -744,11 +757,12 @@ class Pbu:
         if self.current_time - self.last_engagement_time < self.min_engagement_interval:
             return
 
-        # Разрешаем повторный пуск по MISSED целям
+        # Разрешаем повторный пуск по MISSED целям и снижаем порог до MEDIUM,
+        # чтобы успевать перехватывать цели, которые радар обнаружил поздно.
         unengaged_targets = [
             (tid, info) for tid, info in self.targets.items()
             if info.engagement_status in [EngagementStatus.UNENGAGED, EngagementStatus.MISSED]
-               and info.threat_level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]
+               and info.threat_level in [ThreatLevel.MEDIUM, ThreatLevel.HIGH, ThreatLevel.CRITICAL]
                and self.current_time - info.last_update < 5.0
         ]
 
@@ -905,24 +919,25 @@ class Pbu:
         target_info = self.targets.get(target_id)
         if target_info is None:
             return None
-        
-        # Recalculate intercept point
+
         launcher = self.launchers.get(target_info.assigned_launcher_id)
         if launcher is None:
             return None
-        
+
+        # Recompute intercept from the missile's current position so the lead
+        # angle stays accurate as the missile chases a maneuvering target.
         intercept_result = self.engagement_planner._calculate_intercept(
-            launcher.position,
+            missile_position,
             target_info,
             getattr(launcher, "speed", 1000.0)
         )
-        
+
         if intercept_result is None:
-            # Use predicted position
-            intercept_point = target_info.position + target_info.velocity * 1.0
+            # Fall back to a short forward prediction.
+            intercept_point = target_info.position + target_info.velocity * 0.5
         else:
             intercept_point, _ = intercept_result
-        
+
         return {
             "missile_id": missile_id,
             "target_id": target_id,
@@ -978,12 +993,13 @@ class Pbu:
                 target_info.engagement_status = EngagementStatus.MISSED
                 logger.info(f"PBU: Engagement for target {target_id} timed out")
 
-        # ДОБАВИТЬ: сброс MISSED через 10 секунд
+        # Быстрый возврат MISSED→UNENGAGED, чтобы ПБУ перезапускал ракету
         for target_id, target_info in self.targets.items():
-            if target_info.engagement_status == EngagementStatus.MISSED:
-                if self.current_time - target_info.last_update > 10.0:
-                    target_info.engagement_status = EngagementStatus.UNENGAGED
-                    logger.info(f"PBU: Target {target_id} reset from MISSED to UNENGAGED")
+            if target_info.engagement_status != EngagementStatus.MISSED:
+                continue
+            if self.current_time - target_info.last_update < 5.0:
+                target_info.engagement_status = EngagementStatus.UNENGAGED
+                logger.info(f"PBU: Target {target_id} reset from MISSED to UNENGAGED")
 
         for target_id in to_remove:
             del self.engagements[target_id]
@@ -1012,6 +1028,39 @@ class Pbu:
         for target_id in to_remove:
             self.targets.pop(target_id, None)
     
+    def reset_state(
+        self,
+        launchers_spec: List[Dict[str, Any]],
+        assets_spec: List[Any]
+    ) -> None:
+        """Wipe runtime state and rebuild launchers/assets from a UI spec."""
+        self.targets.clear()
+        self.engagements.clear()
+        self.missile_assignments.clear()
+        self.missile_telemetry.clear()
+        self.launcher_statuses.clear()
+        self.order_log.clear()
+        self.exploded_not_cleared_targets.clear()
+        self.targets_detected = 0
+        self.targets_engaged = 0
+        self.targets_destroyed = 0
+        self.missiles_expended = 0
+        self.current_time = 0.0
+        self.last_engagement_time = 0.0
+        self._next_target_id = 0
+        self.launchers.clear()
+        for spec in launchers_spec:
+            self.add_launcher(**spec)
+        if assets_spec:
+            self.defended_assets = [np.array(asset, dtype=np.float64) for asset in assets_spec]
+            self.threat_assessor.defended_position = self.defended_assets[0].copy()
+        else:
+            self.defended_assets = []
+        logger.info(
+            f"PBU reset: {len(self.launchers)} launchers, "
+            f"{len(self.defended_assets)} defended assets"
+        )
+
     def add_launcher(self, **kwargs) -> bool:
         """Add a launcher to PBU control."""
         launcher_id = kwargs.get('id')

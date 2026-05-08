@@ -88,27 +88,30 @@ class Target:
     
     def update(self, time_step: float, current_time: Optional[float] = None):
         """Update target state."""
-        if self.status != TargetStatus.ACTIVE:
+        # Targets keep flying their trajectory while ACTIVE or LOST. EXPIRED
+        # (left the simulation area) and DESTROYED targets are frozen.
+        if self.status in (TargetStatus.EXPIRED, TargetStatus.DESTROYED):
             return
-        
+
         old_position = self.position.copy()
-        
+
         if self.trajectory:
             self.trajectory.update(time_step)
             self.position = self.trajectory.get_position()
             self.velocity = self.trajectory.get_velocity()
-        
+
         # Update statistics
         self.distance_traveled += np.linalg.norm(self.position - old_position)
         self.time_since_last_detection += time_step
-        
+
         # Update history
         self.position_history.append(self.position.copy())
         if len(self.position_history) > self.max_history_length:
             self.position_history.pop(0)
-        
-        # Check if target is lost
-        if self.time_since_last_detection > 10.0:  # 10 seconds without detection
+
+        # Tracking status: target becomes LOST after a detection gap, but the
+        # physics keeps running so radars can pick it up again later.
+        if self.status == TargetStatus.ACTIVE and self.time_since_last_detection > 10.0:
             self.status = TargetStatus.LOST
             self.is_tracked = False
     

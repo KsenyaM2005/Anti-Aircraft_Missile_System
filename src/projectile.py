@@ -31,8 +31,8 @@ class GuidanceMode(Enum):
 class MissileParameters:
     """Missile performance parameters."""
     max_speed: float = 1000.0           # m/s
-    acceleration: float = 50.0          # m/s²
-    turn_rate: float = 10.0             # degrees/s
+    acceleration: float = 180.0         # m/s² (≈18g — adequate for chasing aerial targets)
+    turn_rate: float = 35.0             # degrees/s
     fuel_duration: float = 60.0         # seconds
     warhead_weight: float = 50.0        # kg
     blast_radius: float = 100.0         # meters
@@ -104,7 +104,7 @@ class Missile:
         
         # Initial velocity towards target
         direction = normalize(self.target_position - self.position)
-        self.velocity = direction * (self.params.max_speed * 0.3)  # Initial boost speed
+        self.velocity = direction * (self.params.max_speed * 0.65)  # Initial boost speed
         
         self.exploded = False
     
@@ -245,14 +245,14 @@ class Missile:
         max_speed = self.params.max_speed
         
         if self.status == MissileStatus.BOOSTING:
-            max_speed = self.params.max_speed * (0.3 + 0.7 * min(1.0, self.flight_time / 3.0))
+            max_speed = self.params.max_speed * (0.7 + 0.3 * min(1.0, self.flight_time / 1.5))
         
         if speed > max_speed:
             self.velocity = self.velocity / speed * max_speed
             speed = max_speed
 
         if self.target_position is not None:
-            minimum_speed = self.params.max_speed * (0.35 if self.status == MissileStatus.BOOSTING else 0.6)
+            minimum_speed = self.params.max_speed * (0.65 if self.status == MissileStatus.BOOSTING else 0.7)
             if speed < minimum_speed:
                 direction = self.desired_direction if np.linalg.norm(self.desired_direction) > 0 else normalize(self.velocity)
                 self.velocity = direction * minimum_speed

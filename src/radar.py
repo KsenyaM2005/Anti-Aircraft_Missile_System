@@ -122,51 +122,76 @@ class RadarMeasurement:
     target_type: str = "UNKNOWN"
 
 
-@dataclass
+# Backwards-compatible alias used by tests written against the old API.
+Measurement = RadarMeasurement
+
+
 class Track:
-    """Radar track of a target."""
-    track_id: int
-    target_id: Optional[int] = None
-    target_type: str = "UNKNOWN"
-    
-    # State estimates
-    position: np.ndarray = field(default_factory=lambda: np.zeros(3))
-    velocity: np.ndarray = field(default_factory=lambda: np.zeros(3))
-    acceleration: np.ndarray = field(default_factory=lambda: np.zeros(3))
-    
-    # Covariance matrices
-    position_cov: np.ndarray = field(default_factory=lambda: np.eye(3) * 100)
-    velocity_cov: np.ndarray = field(default_factory=lambda: np.eye(3) * 10)
-    
-    # Track quality
-    status: TrackStatus = TrackStatus.INITIATING
-    confidence: float = 0.5
-    hits: int = 0
-    misses: int = 0
-    consecutive_misses: int = 0
-    
-    # RCS estimate
-    estimated_rcs: float = 1.0
-    
-    # Timing
-    first_detection: float = 0.0
-    last_update: float = 0.0
-    time_since_last_update: float = 0.0
-    
-    # History
-    position_history: List[np.ndarray] = field(default_factory=list)
-    max_history: int = 50
-    
+    """Radar track of a target.
+
+    Supports two construction styles:
+
+    * ``Track(track_id=..., target_id=..., position=..., ...)`` — keyword form
+      used internally by the radar pipeline.
+    * ``Track(track_id, measurement, dt=...)`` — positional form expected by
+      legacy tests; the second argument is a :class:`RadarMeasurement`-like
+      object whose ``position`` / ``rcs`` / ``timestamp`` populate the track.
+    """
+
+    def __init__(self, track_id: int = 0, measurement_or_target_id: Any = None,
+                 *, dt: Optional[float] = None, **kwargs: Any):
+        # Defaults.
+        self.track_id: int = int(track_id)
+        self.target_id: Optional[int] = None
+        self.target_type: str = "UNKNOWN"
+        self.position: np.ndarray = np.zeros(3)
+        self.velocity: np.ndarray = np.zeros(3)
+        self.acceleration: np.ndarray = np.zeros(3)
+        self.position_cov: np.ndarray = np.eye(3) * 100
+        self.velocity_cov: np.ndarray = np.eye(3) * 10
+        self.status: TrackStatus = TrackStatus.INITIATING
+        self.confidence: float = 0.5
+        self.hits: int = 0
+        self.misses: int = 0
+        self.consecutive_misses: int = 0
+        self.estimated_rcs: float = 1.0
+        self.first_detection: float = 0.0
+        self.last_update: float = 0.0
+        self.time_since_last_update: float = 0.0
+        self.position_history: List[np.ndarray] = []
+        self.max_history: int = 50
+        self.dt: Optional[float] = dt
+
+        # Detect Measurement-style call.
+        if measurement_or_target_id is not None and hasattr(measurement_or_target_id, "position") \
+                and hasattr(measurement_or_target_id, "rcs"):
+            measurement = measurement_or_target_id
+            self.target_id = getattr(measurement, "target_id", None)
+            self.target_type = getattr(measurement, "target_type", "UNKNOWN")
+            self.position = np.asarray(measurement.position, dtype=np.float64).copy()
+            self.estimated_rcs = float(getattr(measurement, "rcs", 1.0))
+            self.first_detection = float(getattr(measurement, "timestamp", 0.0))
+            self.last_update = float(getattr(measurement, "timestamp", 0.0))
+            self.hits = 1
+        elif measurement_or_target_id is not None:
+            # Legacy positional second arg = target_id.
+            self.target_id = measurement_or_target_id
+
+        # Apply explicit overrides via kwargs (e.g. position=..., target_type=...).
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
     def update_history(self):
         """Update position history."""
         self.position_history.append(self.position.copy())
         if len(self.position_history) > self.max_history:
             self.position_history.pop(0)
-    
+
     def predict(self, time_ahead: float) -> np.ndarray:
         """Predict future position."""
         return self.position + self.velocity * time_ahead + 0.5 * self.acceleration * time_ahead**2
-    
+
     def get_state_dict(self) -> Dict[str, Any]:
         """Get track state as dictionary."""
         return {
@@ -250,6 +275,99 @@ class KalmanFilter:
         pos_cov = self.P[0:self.dim, 0:self.dim]
         vel_cov = self.P[self.dim:2*self.dim, self.dim:2*self.dim]
         return pos_cov, vel_cov
+
+    # --- Compatibility helpers used by older test API. ----------------
+    def initialize(self, measurement: Any) -> None:
+        """Seed the filter from a Measurement-like object."""
+        position = np.asarray(getattr(measurement, "position", measurement), dtype=np.float64).flatten()
+        self.x = np.zeros(self.state_dim)
+        self.x[0:self.dim] = position[:self.dim]
+        self.P = np.eye(self.state_dim) * 100
+
+    def time_update(self) -> np.ndarray:
+        """Alias for predict() — returns the propagated position estimate."""
+        self.predict()
+        return self.x[0:self.dim]
+
+    def measurement_update(self, z: np.ndarray, R: Optional[np.ndarray] = None) -> np.ndarray:
+        """Alias for update() — returns the post-update position estimate."""
+        self.update(np.asarray(z, dtype=np.float64).flatten()[:self.dim], R=R)
+        return self.x[0:self.dim]
+
+
+class Association:
+    """Nearest-neighbour gating used to attach a measurement to one of the
+    existing tracks. Kept as a thin standalone class for testing and reuse.
+    """
+
+    def __init__(self, gate_threshold: float = 200.0):
+        self.gate_threshold = float(gate_threshold)
+
+    def associate(self, measurement: Any, tracks: Dict[int, Any]) -> Optional[int]:
+        if not tracks:
+            return None
+        meas_pos = np.asarray(getattr(measurement, "position", measurement), dtype=np.float64)
+        best_id: Optional[int] = None
+        best_distance = float("inf")
+        for track_id, track in tracks.items():
+            track_pos = np.asarray(getattr(track, "position", np.zeros(3)), dtype=np.float64)
+            distance = float(np.linalg.norm(meas_pos - track_pos))
+            if distance > self.gate_threshold:
+                continue
+            if distance < best_distance:
+                best_distance = distance
+                best_id = track_id
+        return best_id
+
+
+@dataclass
+class TransmitterParameters:
+    """Simple radar transmitter parameters."""
+    power_watts: float = 100_000.0  # peak transmit power (W)
+    antenna_gain: float = 1000.0    # linear gain
+    wavelength: float = 0.03        # m (X-band)
+    pulse_width: float = 1e-6       # s
+
+
+class Transmitter:
+    """Stand-in transmitter exposing the radar equation inputs."""
+
+    def __init__(self, parameters: Optional[TransmitterParameters] = None):
+        self.parameters = parameters or TransmitterParameters()
+
+    @property
+    def power_watts(self) -> float:
+        return self.parameters.power_watts
+
+    @property
+    def antenna_gain(self) -> float:
+        return self.parameters.antenna_gain
+
+    @property
+    def wavelength(self) -> float:
+        return self.parameters.wavelength
+
+
+class Receiver:
+    """Compatibility wrapper exposing a ``calculate_snr`` method.
+
+    Implements the standard monostatic radar equation:
+        SNR ∝ (P · G² · λ² · σ) / R⁴
+    """
+
+    def __init__(self, noise_floor: float = 1e-13):
+        self.noise_floor = float(noise_floor)
+
+    def calculate_snr(self, range_m: float, transmitter: Transmitter,
+                      sigma: float = 1.0) -> float:
+        range_m = max(1e-3, float(range_m))
+        signal = (
+            transmitter.power_watts
+            * transmitter.antenna_gain ** 2
+            * transmitter.wavelength ** 2
+            * float(sigma)
+        ) / ((4 * math.pi) ** 3 * range_m ** 4)
+        return signal / self.noise_floor
 
 
 class Radar:
@@ -430,9 +548,11 @@ class Radar:
         self._update_beam_geometry()
 
         targets = environment.get_targets()
-        
+
         for target_id, target in targets.items():
-            if target.status != TargetStatus.ACTIVE:
+            # Allow re-detection of LOST targets — only skip those that are
+            # actually gone (destroyed or expired).
+            if target.status in (TargetStatus.DESTROYED, TargetStatus.EXPIRED):
                 continue
 
             if not self._is_target_in_beam(target.position):
@@ -469,7 +589,7 @@ class Radar:
                 continue
 
             target = targets.get(track.target_id)
-            if target is None or target.status != TargetStatus.ACTIVE:
+            if target is None or target.status in (TargetStatus.DESTROYED, TargetStatus.EXPIRED):
                 self._mark_track_missed(track)
                 continue
 

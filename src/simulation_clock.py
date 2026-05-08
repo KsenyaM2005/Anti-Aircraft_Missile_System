@@ -56,6 +56,19 @@ class SimulationClock:
     def stop(self):
         self.state = SimulationState.STOPPED
         logger.info("Simulation stopped")
+
+    def clear_components(self):
+        self._components = []
+        self._component_map = {}
+        logger.info("Simulation clock components cleared")
+
+    def reset(self):
+        self.stop()
+        self.current_time = 0.0
+        self.tick_count = 0
+        self._tick_times = []
+        self._last_real_time = None
+        logger.info("Simulation clock reset")
     
     def tick(self) -> bool:
         if self.state == SimulationState.STOPPED or self.state == SimulationState.PAUSED:

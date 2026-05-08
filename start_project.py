@@ -35,7 +35,9 @@ class ADSSimulatorGUI:
         from gui import GUI
         from pbu import Pbu
         from radar import Radar
-        from simulation_clock import SimulationClock
+        from simulation_clock import SimulationClock, SimulationState
+
+        self.SimulationState = SimulationState
 
         self.plt = plt
         self.FuncAnimation = FuncAnimation
@@ -73,8 +75,10 @@ class ADSSimulatorGUI:
             pbu=self.pbu,
             radars=self.radars,
             gui=self.gui,
+            config=self.config,
         )
         self.dispatcher.register_default_components()
+        self.gui.set_variant_provider(self.dispatcher.get_variant_names)
 
     def update(self, _frame: int):
         """Update callback for animation and smoke tests."""
@@ -83,8 +87,13 @@ class ADSSimulatorGUI:
 
         self.dispatcher.update_gui_cache()
         self.gui.render()
+        # With TkAgg, Tk's mainloop drives every Toplevel automatically — no
+        # explicit pump needed. We still pump once a second as a safety net in
+        # case the user is on a weird backend.
+        if self.frame_count % 20 == 0:
+            self.gui.pump_tk_events()
 
-        if not self.clock.is_running():
+        if self.clock.state == self.SimulationState.STOPPED:
             self.plt.close()
             return []
 
@@ -148,6 +157,15 @@ class ADSSimulatorGUI:
 
 def run_gui(config_path: str) -> int:
     """Run the GUI mode."""
+    # Force the TkAgg backend so the matplotlib figure and the Tk-based scenario
+    # editor share the same event loop. Without this, on macOS matplotlib falls
+    # back to the Cocoa backend and the editor's Toplevel window has no Tk
+    # mainloop driving it — clicks and repaints never happen.
+    import matplotlib
+    try:
+        matplotlib.use("TkAgg", force=True)
+    except (ImportError, ModuleNotFoundError, ValueError):
+        pass
     simulator = ADSSimulatorGUI(config_path)
     simulator.run()
     return 0
